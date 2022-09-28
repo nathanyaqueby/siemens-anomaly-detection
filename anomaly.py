@@ -5,7 +5,6 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
-from io import StringIO
 
 st.set_page_config(layout="wide")
 st.title("Anomaly Detection Team - Challenge 4")
