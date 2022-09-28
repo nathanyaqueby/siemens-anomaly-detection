@@ -8,33 +8,44 @@ st.markdown("Upload data to start!")
 
 
 st.sidebar.title("1. Data")
-uploaded_file = st.sidebar.file_uploader("Choose a file")
+uploaded_file = st.sidebar.file_uploader("Choose a file (currently only works with CTR & SEA)")
 
 if uploaded_file is not None:
 
     # Can be used wherever a "file-like" object is accepted:
     dataframe = pd.read_excel(uploaded_file)
-    st.write(dataframe)
 
     df_type = uploaded_file.name.split("_")[0]
     df = dataframe
+    val = "Value"
+    date = "Date"
+
+    if df_type == "CTR":
+        lcb = "LCB "
+    elif df_type == "HMI":
+        dataframe = pd.read_excel(uploaded_file, header=None)
+        print(dataframe.columns)
+        lcb = "1"
+        # TO-DO : figure our HMI's header
+    else:
+        lcb = "LCB"
 
     # st.sidebar.checkbox("Show Analysis by Location", True, key=1)
     st.sidebar.title("2. Location")
-    select = st.sidebar.selectbox('Select a Location', df['LCB '])
+    select = st.sidebar.selectbox('Select a Location', df[lcb])
 
     #get the state selected in the selectbox
-    state_data = df[df['LCB '] == select]
+    state_data = df[df[lcb] == select]
 
-    countries=df['LCB '].unique()
-    dic={}
+    countries=df[lcb].unique()
+    dic = {}
     for  country in countries:
-        dic[country]=df[df['LCB ']==country]
+        dic[country]=df[df[lcb]==country]
 
     def get_total_dataframe(dataset):
         total_dataframe = pd.DataFrame({
-        'Date':dataset['Date'],
-        'Value':dataset['Value']})
+        'Date':dataset[date],
+        'Value':dataset[val]})
         return total_dataframe
 
     state_total = get_total_dataframe(state_data)
