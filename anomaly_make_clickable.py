@@ -77,6 +77,7 @@ if uploaded_file is not None:
         pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
     else:
         # Show figure of all data
+        st.markdown("## **Product analysis**")
         date_min=df.Date.iloc[0].strftime("%B %Y")
         date_max=df.Date.iloc[-1].strftime("%B %Y")
         fig2 = px.line(df, x='Date', y='Value', color=lcb, title=f"All {df_type} data from {date_min} to {date_max}")
