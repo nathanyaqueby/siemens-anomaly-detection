@@ -66,7 +66,7 @@ if uploaded_file is not None:
                 y='Value',
                 labels={'Value':'Value in %s' % (select)},
                 width=1200, height=400)
-            st.plotly_chart(fig, use_container_width=True)
+            # st.plotly_chart(fig, use_container_width=True)
             selected_points = plotly_events(fig)
-            st.write(selected_points)
+            st.write(selected_points[0]["x"],selected_points[0]["y"])
             # st.markdown("Selected data point, {}:{}".format(selected_points["x"],selected_points["y"]))
