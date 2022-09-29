@@ -177,6 +177,13 @@ if uploaded_file is not None:
         st.sidebar.title("3. Model")
         model_option = st.sidebar.selectbox("Choose a model", ("ARIMA", "Coming soon"))
 
+        
+        # if a point was clicked, show info
+        if selected_points:
+            st.markdown("#### **Selected point**")
+            st.markdown("Date: {}".format(selected_points[0]["x"]))
+            st.markdown("Value: {}".format(selected_points[0]["y"]))
+
         st.markdown("## **Model prediction**")
         with st.expander("I want to see the nerd stats!"):
             if model_option == "ARIMA":
@@ -204,11 +211,11 @@ if uploaded_file is not None:
         pdf.image("fig2.png", w=195, h=65, y=40, x=10)
         st.sidebar.title("3. Export Results")
 
-    # if a point was clicked, show info
-    if selected_points:
-        st.markdown("#### **Selected point**")
-        st.markdown("Date: {}".format(selected_points[0]["x"]))
-        st.markdown("Value: {}".format(selected_points[0]["y"]))
+        # if a point was clicked, show info
+        if selected_points:
+            st.markdown("#### **Selected point**")
+            st.markdown("Date: {}".format(selected_points[0]["x"]))
+            st.markdown("Value: {}".format(selected_points[0]["y"]))
 
     # download
     st.sidebar.download_button('Download report as PDF',
