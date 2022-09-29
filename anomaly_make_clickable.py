@@ -67,8 +67,7 @@ if uploaded_file is not None:
                 state_total, 
                 x='Date',
                 y='Value',
-                labels={'Value':'Value in %s' % (select)},
-                use_container_width=True)
+                labels={'Value':'Value in %s' % (select)})
             # st.plotly_chart(fig, use_container_width=True)
             
             selected_points = plotly_events(fig)
