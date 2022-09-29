@@ -50,7 +50,7 @@ if uploaded_file is not None:
     state_total = get_total_dataframe(state_data)
     # state_total = ctr_data
 
-    check = st.sidebar.checkbox("Show analysis by location", True, key=2)
+    check = st.sidebar.checkbox("Show analysis by location", value=True, key=2)
     if check:
         st.markdown("## **Location analysis**")
         date_min=df.Date.iloc[0].strftime("%B %Y")
@@ -73,8 +73,10 @@ if uploaded_file is not None:
                 st.markdown("Date: {}".format(selected_points[0]["x"]))
                 st.markdown("Value: {}".format(selected_points[0]["y"]))
     else:
-        fig = px.line(df, x='Date', y='Value', color=lcb,title=df_type)
-        st.plotly_chart(fig, use_container_width=True)
+        pass
+
+    fig = px.line(df, x='Date', y='Value', color=lcb,title=df_type)
+    st.plotly_chart(fig, use_container_width=True)
 
     # download as PDF
     st. markdown("### **Save to pdf**")
