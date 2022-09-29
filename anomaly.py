@@ -7,7 +7,7 @@ from fpdf import FPDF
 from streamlit_plotly_events import plotly_events
 import os
 import statsmodels.tsa.stattools as sta
-from prophet.serialize import model_to_json, model_from_json
+from prophet.serialize import model_from_json
 
 
 def test_stationarity(ts_data, column='', signif=0.05, series=False):
@@ -123,64 +123,79 @@ if uploaded_file is not None:
 
     # st.sidebar.checkbox("Show Analysis by Location", True, key=1)
     st.sidebar.title("2. Location")
-    select = st.sidebar.selectbox('Select a location', df[lcb])
+    check = st.sidebar.checkbox("Show analysis by location", value=False, key=2)
+    
+    if check:
+        # Add additional dropdown in sidebar
+        select = st.sidebar.selectbox('Select a location', df[lcb])
 
-    #get the state selected in the selectbox
-    state_data = df[df[lcb] == select]
+        #get the state selected in the selectbox
+        state_data = df[df[lcb] == select]
 
-    countries=df[lcb].unique()
-    dic = {}
-    for country in countries:
-        dic[country]=df[df[lcb]==country]
+        countries=df[lcb].unique()
+        dic = {}
+        for country in countries:
+            dic[country]=df[df[lcb]==country]
 
-    def get_total_dataframe(dataset):
-        total_dataframe = pd.DataFrame({
-        'Date':dataset[date],
-        'Value':dataset[val]})
-        return total_dataframe
+        def get_total_dataframe(dataset):
+            total_dataframe = pd.DataFrame({
+            'Date':dataset[date],
+            'Value':dataset[val]})
+            return total_dataframe
 
-    state_total = get_total_dataframe(state_data)
-    # state_total = ctr_data
+        state_total = get_total_dataframe(state_data)
 
-    if st.sidebar.checkbox("Show analysis by location", True, key=2):
+        # Show figure per location
         st.markdown("## **Location analysis**")
         date_min=df.Date.iloc[0].strftime("%B %Y")
         date_max=df.Date.iloc[-1].strftime("%B %Y")
-        st.markdown(f"### Overall {df_type} data in {select} from {date_min} to {date_max}")
-        if not st.checkbox('Hide graph', False, key=1):
-            fig = px.line(
-            state_total, 
-            x='Date',
-            y='Value',
-            labels={'Value':'Value in %s' % (select)},
-            width=1200, height=400)
-            # create list of dicts with selected points, and plot
-            selected_points = plotly_events(fig)
-            # unsure why?
-            pio.write_image(fig, "fig1.png", format="png", validate="False", engine="kaleido")
-            # if a point was clicked, show info
-            if selected_points:
-                st.markdown("#### **Selected point**")
-                st.markdown("Date: {}".format(selected_points[0]["x"]))
-                st.markdown("Value: {}".format(selected_points[0]["y"]))
 
-        # download as PDF
-        st. markdown("### **Save to pdf**")
-        pdf = FPDF('P', 'mm', 'A4')
-        pdf.add_page()
-        pdf.set_font(family='Arial', size=16)
-        pdf.cell(40, 50, txt="Anomaly Detection Report")
-        # pdf.cell(40, 50, txt=f"Overall {df_type} data in {select} from October 2020 to last week")
-        pdf.image("fig1.png", w=195, h=65, y=40, x=10)
+        fig1 = px.line(
+        state_total, 
+        x='Date',
+        y='Value',
+        labels={'Value':'Value in %s' % (select)},
+        width=1200, height=400,
+        title=f"{df_type} data in {select} from {date_min} to {date_max}")
+        fig1.update(layout=dict(title=dict(x=0.5)))
+        # create list of dicts with selected points, and plot
+        selected_points = plotly_events(fig)
+        # generate image for pdf
+        pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
+    else:
+        # Show figure of all data
+        st.markdown("## **Product analysis**")
+        date_min=df.Date.iloc[0].strftime("%B %Y")
+        date_max=df.Date.iloc[-1].strftime("%B %Y")
+        fig2 = px.line(df, x='Date', y='Value', color=lcb, title=f"All {df_type} data from {date_min} to {date_max}")
+        fig2.update(layout=dict(title=dict(x=0.5)))
+        selected_points = plotly_events(fig2)
+        pio.write_image(fig2, "fig1.png", format="png", validate="False", engine="kaleido")
 
-        st.sidebar.title("3. Model")
-        model_option = st.sidebar.selectbox("Choose a model", ("ARIMA", "Coming soon"))
 
+    # if a point was clicked, show info
+    if selected_points:
+        st.markdown("#### **Selected point**")
+        st.markdown("Date: {}".format(selected_points[0]["x"]))
+        st.markdown("Value: {}".format(selected_points[0]["y"]))
+
+    # Prepare PDF
+    st. markdown("### **Save to pdf**")
+    pdf = FPDF('P', 'mm', 'A4')
+    pdf.add_page()
+    pdf.set_font(family='Arial', size=16)
+    pdf.cell(40, 50, txt="Anomaly Detection Report")
+    # pdf.cell(40, 50, txt=f"Overall {df_type} data in {select} from October 2020 to last week")
+    pdf.image("fig1.png", w=195, h=65, y=40, x=10)
+
+    st.sidebar.title("3. Model")
+    model_option = st.sidebar.selectbox("Choose a model", ("ARIMA", "Coming soon"))
+
+    with st.expander("## **Model prediction**"):
         if model_option == "ARIMA":
             m_path = os.path.join("models", "arima_model.json")
 
-            st.markdown("## **Model prediction**")
-            st.markdown(f"### Predicted anomalies in {df_type} data in {select} from October 2020 to last week")
+            st.markdown(f"### Predicted anomalies in {df_type} data in {select} from {date_min} to {date_max}")
 
             dic, pred, result = predict_model(m_path, df, select)
             evaluation_df = analyze_data(df, dic, select, pred, result)
@@ -188,9 +203,9 @@ if uploaded_file is not None:
             st.dataframe(evaluation_df, use_container_width=True)
 
             pdf.image("fig2.png", w=195, h=65, y=105, x=10)
-        
-        # download
-        st.sidebar.download_button('Download report as PDF',
-                        data=pdf.output(dest="S").encode("latin-1"),
-                        file_name='anomaly_detection_report.pdf'
-                        )
+    
+    # download
+    st.sidebar.download_button('Download report as PDF',
+                    data=pdf.output(dest="S").encode("latin-1"),
+                    file_name='anomaly_detection_report.pdf'
+                    )
