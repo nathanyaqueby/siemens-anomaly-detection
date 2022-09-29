@@ -6,8 +6,9 @@ from fpdf import FPDF
 
 st.set_page_config(layout="wide")
 st.title("Anomaly Detection Team - Challenge 4")
-st.markdown("Upload data to start!")
 
+if uploaded_file is None:
+    st.markdown("Upload data to start!")
 
 st.sidebar.title("1. Data")
 uploaded_file = st.sidebar.file_uploader("Choose a file")
