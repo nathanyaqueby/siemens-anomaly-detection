@@ -15,5 +15,6 @@ Detect abnormal bookings, unexpected high (or low) sales of a certain product in
 - Hanin Al Ghothani
 - Mobina Mobaraki
 - Nathanya Queby S.
+- Saarah Abdulla
 
 Made for the [WomenHackAI](https://www.womenhackai.com/) Hackathon organized by Siemens Female Data Science Network in September 2022.
