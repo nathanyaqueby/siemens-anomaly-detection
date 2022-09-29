@@ -65,7 +65,7 @@ if uploaded_file is not None:
             y='Value',
             labels={'Value':'Value in %s' % (select)},
             width=1200, height=400,
-            title=f"{df_type} data in {select} from {date_min} to {date_max}")
+            title=f"\033[1m{df_type}\033[0m data in \033[1m{select}\033[0m from \033[1m{date_min}\033[0m to \033[1m{date_max}\033[0m", title_x=0.5)
             # create list of dicts with selected points, and plot
             selected_points = plotly_events(fig1)
             # generate image for pdf
@@ -74,7 +74,7 @@ if uploaded_file is not None:
             date_min=df.Date.iloc[0].strftime("%B %Y")
             date_max=df.Date.iloc[-1].strftime("%B %Y")
             fig2 = px.line(df, x='Date', y='Value', color=lcb,
-            title=f"All {df_type} data from {date_min} to {date_max}")
+            title=f"All \033[1m{df_type}\033[0m data from \033[1m{date_min}\033[0m to \033[1m{date_max}\033[0m", title_x=0.5)
             selected_points = plotly_events(fig2)
 
         # if a point was clicked, show info
