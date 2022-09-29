@@ -29,7 +29,6 @@ if uploaded_file is not None:
     else:
         lcb = "LCB"
 
-    # st.sidebar.checkbox("Show Analysis by Location", True, key=1)
     st.sidebar.title("2. Location")
     select = st.sidebar.selectbox('Select a location', df[lcb])
 
@@ -50,13 +49,16 @@ if uploaded_file is not None:
     state_total = get_total_dataframe(state_data)
     # state_total = ctr_data
 
+
     check = st.sidebar.checkbox("Show analysis by location", value=True, key=2)
-    if check:
-        st.markdown("## **Location analysis**")
-        date_min=df.Date.iloc[0].strftime("%B %Y")
-        date_max=df.Date.iloc[-1].strftime("%B %Y")
-        st.markdown(f"### Overall {df_type} data in {select} from {date_min} to {date_max}")
-        if not st.checkbox('Hide graph', False, key=1):
+
+    if not st.checkbox('Hide graph', False, key=1):
+        if check:
+            st.markdown("## **Location analysis**")
+            date_min=df.Date.iloc[0].strftime("%B %Y")
+            date_max=df.Date.iloc[-1].strftime("%B %Y")
+            st.markdown(f"### Overall {df_type} data in {select} from {date_min} to {date_max}")
+        
             fig = px.line(
             state_total, 
             x='Date',
@@ -72,11 +74,9 @@ if uploaded_file is not None:
                 st.markdown("#### **Selected point**")
                 st.markdown("Date: {}".format(selected_points[0]["x"]))
                 st.markdown("Value: {}".format(selected_points[0]["y"]))
-    else:
-        pass
-
-    fig = px.line(df, x='Date', y='Value', color=lcb,title=df_type)
-    st.plotly_chart(fig, use_container_width=True)
+        else:
+            fig = px.line(df, x='Date', y='Value', color=lcb,title=df_type)
+            st.plotly_chart(fig, use_container_width=True)
 
     # download as PDF
     st. markdown("### **Save to pdf**")
