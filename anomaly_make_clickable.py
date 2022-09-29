@@ -71,5 +71,5 @@ if uploaded_file is not None:
                 y='Value',
                 labels={'Value':'Value in %s' % (select)},
                 width=1200, height=400)
-                st.plotly_chart(state_total_graph, use_container_width=True)
+                st.plotly_chart(fig, use_container_width=True)
                 selected_points = plotly_events(fig)
