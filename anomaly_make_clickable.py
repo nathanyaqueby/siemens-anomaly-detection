@@ -64,10 +64,12 @@ if uploaded_file is not None:
             selected_points = plotly_events(fig)
 
             # Can write inside of things using with!
-            with st.beta_expander('Plot'):
-                fig = px.line(x=[1], y=[1])
+            with st.expander('Plot'):
+                fig = px.line(
+                state_total, 
+                x='Date',
+                y='Value',
+                labels={'Value':'Value in %s' % (select)},
+                width=1200, height=400)
+                st.plotly_chart(state_total_graph, use_container_width=True)
                 selected_points = plotly_events(fig)
-
-            # Select other Plotly events by specifying kwargs
-            fig = px.line(x=[1], y=[1])
-            selected_points = plotly_events(fig, click_event=False, hover_event=True)
