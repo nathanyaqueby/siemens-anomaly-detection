@@ -73,7 +73,6 @@ if uploaded_file is not None:
             selected_points = plotly_events(fig)
 
             if selected_points:
-                st.write("Selected point")
-                st.write("Date:",selected_points[0]["x"])
-                st.write("Value:",selected_points[0]["y"])
-                st.markdown("Selected data point, {}:{}".format(selected_points[0]["x"],selected_points[0]["y"]))
+                st.markdown("#### **Selected point**")
+                st.markdown("Date:",selected_points[0]["x"])
+                st.markdown("Value:",selected_points[0]["y"])
