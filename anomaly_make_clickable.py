@@ -55,22 +55,26 @@ if uploaded_file is not None:
     if not st.checkbox('Hide graph', False, key=1):
         if check:
             st.markdown("## **Location analysis**")
-            date_min=df.Date.iloc[0].strftime("%B %Y")
-            date_max=df.Date.iloc[-1].strftime("%B %Y")
-            st.markdown(f"### Overall {df_type} data in {select} from {date_min} to {date_max}")
+            date_min=state_total.Date.iloc[0].strftime("%B %Y")
+            date_max=state_total.Date.iloc[-1].strftime("%B %Y")
+            # st.markdown(f"### Overall {df_type} data in {select} from {date_min} to {date_max}")
         
             fig1 = px.line(
             state_total, 
             x='Date',
             y='Value',
             labels={'Value':'Value in %s' % (select)},
-            width=1200, height=400)
+            width=1200, height=400,
+            title=f"{df_type} data in {select} from {date_min} to {date_max}")
             # create list of dicts with selected points, and plot
             selected_points = plotly_events(fig1)
             # generate image for pdf
             pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
         else:
-            fig2 = px.line(df, x='Date', y='Value', color=lcb, title=df_type)
+            date_min=df.Date.iloc[0].strftime("%B %Y")
+            date_max=df.Date.iloc[-1].strftime("%B %Y")
+            fig2 = px.line(df, x='Date', y='Value', color=lcb,
+            title=f"All {df_type} data from {date_min} to {date_max}")
             selected_points = plotly_events(fig2)
 
         # if a point was clicked, show info
