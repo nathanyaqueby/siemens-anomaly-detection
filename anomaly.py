@@ -73,6 +73,7 @@ if uploaded_file is not None:
                 st.markdown("Value: {}".format(selected_points[0]["y"]))
 
         # download as PDF
+        st. markdown("### **Save to pdf**")
         pdf = FPDF('P', 'mm', 'A4')
         pdf.add_page()
         pdf.set_font(family='Arial', size=16)
