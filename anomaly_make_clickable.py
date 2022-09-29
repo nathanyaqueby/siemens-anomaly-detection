@@ -50,7 +50,8 @@ if uploaded_file is not None:
     state_total = get_total_dataframe(state_data)
     # state_total = ctr_data
 
-    if st.sidebar.checkbox("Show analysis by location", True, key=2):
+    check = st.sidebar.checkbox("Show analysis by location", True, key=2)
+    if check:
         st.markdown("## **Location analysis**")
         date_min=df.Date.iloc[0].strftime("%B %Y")
         date_max=df.Date.iloc[-1].strftime("%B %Y")
