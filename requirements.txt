@@ -3,3 +3,5 @@ plotly==5.10.0
 streamlit==0.80.0
 openpyxl==3.0.10
 pip install streamlit-plotly-events
+fpdf==1.7.2
+kaleido==0.2.1
