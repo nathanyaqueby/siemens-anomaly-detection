@@ -50,7 +50,8 @@ if uploaded_file is not None:
 
     if st.sidebar.checkbox("Show Analysis by Location", True, key=2):
         st.markdown("## **Location analysis**")
-        st.markdown(f"### Overall {df_type} data in {select} from October 2020 to last week")
+        
+        st.markdown(f"### Overall {df_type} data in {select} from {df.Date[0]} to {df.Date[-1]}")
         if not st.checkbox('Hide Graph', False, key=1):
             # state_total_graph = px.line(
             # state_total, 
@@ -67,6 +68,10 @@ if uploaded_file is not None:
                 labels={'Value':'Value in %s' % (select)},
                 width=1200, height=400)
             # st.plotly_chart(fig, use_container_width=True)
+            
             selected_points = plotly_events(fig)
-            st.write(selected_points[0]["x"],selected_points[0]["y"])
+            if selected_points:
+                st.write("Selected point")
+                st.write("Date:",selected_points[0]["x"])
+                st.write("Value:",selected_points[0]["y"])
             # st.markdown("Selected data point, {}:{}".format(selected_points["x"],selected_points["y"]))
