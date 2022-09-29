@@ -69,14 +69,15 @@ if uploaded_file is not None:
             selected_points = plotly_events(fig)
             # unsure why?
             pio.write_image(fig, "fig1.png", format="png", validate="False", engine="kaleido")
-            # if a point was clicked, show info
-            if selected_points:
-                st.markdown("#### **Selected point**")
-                st.markdown("Date: {}".format(selected_points[0]["x"]))
-                st.markdown("Value: {}".format(selected_points[0]["y"]))
         else:
             fig = px.line(df, x='Date', y='Value', color=lcb,title=df_type)
-            st.plotly_chart(fig, use_container_width=True)
+            selected_points = plotly_events(fig)
+
+        # if a point was clicked, show info
+        if selected_points:
+            st.markdown("#### **Selected point**")
+            st.markdown("Date: {}".format(selected_points[0]["x"]))
+            st.markdown("Value: {}".format(selected_points[0]["y"]))
 
     # download as PDF
     st. markdown("### **Save to pdf**")
