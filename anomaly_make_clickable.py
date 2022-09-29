@@ -80,4 +80,5 @@ if uploaded_file is not None:
             #     st.plotly_chart(fig, use_container_width=True)
             #     selected_points = plotly_events(fig)
 
+            st.write("Selected data point, {}:{}".format(selected_points["x"],selected_points["y"]))
             st.markdown("Selected data point, {}:{}".format(selected_points["x"],selected_points["y"]))
