@@ -1,17 +1,18 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import datetime
+import plotly.io as pio
+from fpdf import FPDF
 from streamlit_plotly_events import plotly_events
-
 
 st.set_page_config(layout="wide")
 st.title("Anomaly Detection Team - Challenge 4")
-st.markdown("Upload data to start!")
-
 
 st.sidebar.title("1. Data")
-uploaded_file = st.sidebar.file_uploader("Choose a file (CTR, HMI, or SEA as Excel file)")
+uploaded_file = st.sidebar.file_uploader("Choose a file (Excel)")
+
+if uploaded_file is None:
+    st.markdown("Upload data to start!")
 
 if uploaded_file is not None:
 
@@ -30,14 +31,14 @@ if uploaded_file is not None:
 
     # st.sidebar.checkbox("Show Analysis by Location", True, key=1)
     st.sidebar.title("2. Location")
-    select = st.sidebar.selectbox('Select a Location', df[lcb])
+    select = st.sidebar.selectbox('Select a location', df[lcb])
 
     #get the state selected in the selectbox
     state_data = df[df[lcb] == select]
 
     countries=df[lcb].unique()
     dic = {}
-    for  country in countries:
+    for country in countries:
         dic[country]=df[df[lcb]==country]
 
     def get_total_dataframe(dataset):
@@ -49,30 +50,38 @@ if uploaded_file is not None:
     state_total = get_total_dataframe(state_data)
     # state_total = ctr_data
 
-    if st.sidebar.checkbox("Show Analysis by Location", True, key=2):
+    if st.sidebar.checkbox("Show analysis by location", True, key=2):
         st.markdown("## **Location analysis**")
         date_min=df.Date.iloc[0].strftime("%B %Y")
         date_max=df.Date.iloc[-1].strftime("%B %Y")
         st.markdown(f"### Overall {df_type} data in {select} from {date_min} to {date_max}")
-        if not st.checkbox('Hide Graph', False, key=1):
-            # state_total_graph = px.line(
-            # state_total, 
-            # x='Date',
-            # y='Value',
-            # labels={'Value':'Value in %s' % (select)},
-            # width=1200, height=400)
-            # st.plotly_chart(state_total_graph, use_container_width=True)
-            # Writes a component similar to st.write()
+        if not st.checkbox('Hide graph', False, key=1):
             fig = px.line(
-                state_total, 
-                x='Date',
-                y='Value',
-                labels={'Value':'Value in %s' % (select)})
-            # st.plotly_chart(fig, use_container_width=True)
-            
+            state_total, 
+            x='Date',
+            y='Value',
+            labels={'Value':'Value in %s' % (select)},
+            width=1200, height=400)
+            # create list of dicts with selected points, and plot
             selected_points = plotly_events(fig)
-
+            # unsure why?
+            pio.write_image(fig, "fig1.png", format="png", validate="False", engine="kaleido")
+            # if a point was clicked, show info
             if selected_points:
                 st.markdown("#### **Selected point**")
                 st.markdown("Date: {}".format(selected_points[0]["x"]))
                 st.markdown("Value: {}".format(selected_points[0]["y"]))
+
+        # download as PDF
+        st. markdown("### **Save to pdf**")
+        pdf = FPDF('P', 'mm', 'A4')
+        pdf.add_page()
+        pdf.set_font(family='Arial', size=16)
+        pdf.cell(40, 50, txt="Anomaly Detection Report")
+        # pdf.cell(40, 50, txt=f"Overall {df_type} data in {select} from October 2020 to last week")
+        pdf.image("fig1.png", w=195, h=65, y=40, x=10)
+
+        st.download_button('Download report as PDF',
+                        data=pdf.output(dest="S").encode("latin-1"),
+                        file_name='anomaly_detection_report.pdf'
+                        )
