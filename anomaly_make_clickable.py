@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import datetime
 from streamlit_plotly_events import plotly_events
 
 
@@ -50,9 +51,7 @@ if uploaded_file is not None:
 
     if st.sidebar.checkbox("Show Analysis by Location", True, key=2):
         st.markdown("## **Location analysis**")
-        st.write(df.Date[0])
-        st.write(df.Date[-1])
-        st.markdown(f"### Overall {df_type} data in {select} from {df.Date[0]} to {df.Date[-1]}")
+        st.markdown(f"### Overall {df_type} data in {select} from {df.Date.iloc[0].strftime("%B %Y")} to {df.Date.iloc[-1].strftime("%B %Y")}")
         if not st.checkbox('Hide Graph', False, key=1):
             # state_total_graph = px.line(
             # state_total, 
