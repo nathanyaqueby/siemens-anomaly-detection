@@ -51,7 +51,9 @@ if uploaded_file is not None:
 
     if st.sidebar.checkbox("Show Analysis by Location", True, key=2):
         st.markdown("## **Location analysis**")
-        st.markdown(f"### Overall {df_type} data in {select} from {df.Date.iloc[0].strftime("%B %Y")} to {df.Date.iloc[-1].strftime("%B %Y")}")
+        date_min=df.Date.iloc[0].strftime("%B %Y")
+        date_max=df.Date.iloc[-1].strftime("%B %Y")
+        st.markdown(f"### Overall {df_type} data in {select} from {date_min} to {date_max}")
         if not st.checkbox('Hide Graph', False, key=1):
             # state_total_graph = px.line(
             # state_total, 
