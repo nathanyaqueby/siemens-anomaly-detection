@@ -159,7 +159,7 @@ if uploaded_file is not None:
         title=f"{df_type} data in {select} from {date_min} to {date_max}")
         fig1.update(layout=dict(title=dict(x=0.5)))
         # create list of dicts with selected points, and plot
-        selected_points = plotly_events(fig)
+        selected_points = plotly_events(fig1)
         # generate image for pdf
         pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
     else:
@@ -180,7 +180,7 @@ if uploaded_file is not None:
         st.markdown("Value: {}".format(selected_points[0]["y"]))
 
     # Prepare PDF
-    st. markdown("### **Save to pdf**")
+    # st. markdown("### **Save to pdf**")
     pdf = FPDF('P', 'mm', 'A4')
     pdf.add_page()
     pdf.set_font(family='Arial', size=16)
