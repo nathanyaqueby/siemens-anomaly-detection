@@ -177,7 +177,8 @@ if uploaded_file is not None:
         st.sidebar.title("3. Model")
         model_option = st.sidebar.selectbox("Choose a model", ("ARIMA", "Coming soon"))
 
-        with st.expander("## **Model prediction**"):
+        st.markdown("## **Model prediction**")
+        with st.expander("I want to see the nerd stats!"):
             if model_option == "ARIMA":
                 m_path = os.path.join("models", "arima_model.json")
 
