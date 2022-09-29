@@ -74,5 +74,5 @@ if uploaded_file is not None:
 
             if selected_points:
                 st.markdown("#### **Selected point**")
-                st.markdown("Date:",selected_points[0]["x"])
-                st.markdown("Value:",selected_points[0]["y"])
+                st.markdown("Date: {}".format(selected_points[0]["x"]))
+                st.markdown("Value: {}".format(selected_points[0]["y"]))
