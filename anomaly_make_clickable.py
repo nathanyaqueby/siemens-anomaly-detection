@@ -59,19 +59,19 @@ if uploaded_file is not None:
             date_max=df.Date.iloc[-1].strftime("%B %Y")
             st.markdown(f"### Overall {df_type} data in {select} from {date_min} to {date_max}")
         
-            fig = px.line(
+            fig1 = px.line(
             state_total, 
             x='Date',
             y='Value',
             labels={'Value':'Value in %s' % (select)},
             width=1200, height=400)
             # create list of dicts with selected points, and plot
-            selected_points = plotly_events(fig)
-            # unsure why?
-            pio.write_image(fig, "fig1.png", format="png", validate="False", engine="kaleido")
+            selected_points = plotly_events(fig1)
+            # generate image for pdf
+            pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
         else:
-            fig = px.line(df, x='Date', y='Value', color=lcb,title=df_type)
-            selected_points = plotly_events(fig)
+            fig2 = px.line(df, x='Date', y='Value', color=lcb, title=df_type)
+            selected_points = plotly_events(fig2)
 
         # if a point was clicked, show info
         if selected_points:
