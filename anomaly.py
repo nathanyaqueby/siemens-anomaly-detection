@@ -3,12 +3,13 @@ import pandas as pd
 import plotly.express as px
 import plotly.io as pio
 from fpdf import FPDF
+from streamlit_plotly_events import plotly_events
 
 st.set_page_config(layout="wide")
 st.title("Anomaly Detection Team - Challenge 4")
 
 st.sidebar.title("1. Data")
-uploaded_file = st.sidebar.file_uploader("Choose a file")
+uploaded_file = st.sidebar.file_uploader("Choose a file (Excel)")
 
 if uploaded_file is None:
     st.markdown("Upload data to start!")
@@ -37,7 +38,7 @@ if uploaded_file is not None:
 
     countries=df[lcb].unique()
     dic = {}
-    for  country in countries:
+    for country in countries:
         dic[country]=df[df[lcb]==country]
 
     def get_total_dataframe(dataset):
@@ -51,17 +52,25 @@ if uploaded_file is not None:
 
     if st.sidebar.checkbox("Show analysis by location", True, key=2):
         st.markdown("## **Location analysis**")
-        st.markdown(f"### Overall {df_type} data in {select} from October 2020 to last week")
+        date_min=df.Date.iloc[0].strftime("%B %Y")
+        date_max=df.Date.iloc[-1].strftime("%B %Y")
+        st.markdown(f"### Overall {df_type} data in {select} from {date_min} to {date_max}")
         if not st.checkbox('Hide graph', False, key=1):
-            state_total_graph = px.line(
+            fig = px.line(
             state_total, 
             x='Date',
             y='Value',
             labels={'Value':'Value in %s' % (select)},
             width=1200, height=400)
-            st.plotly_chart(state_total_graph, use_container_width=True)
-            pio.write_image(state_total_graph, "fig1.png", format="png", validate="False", engine="kaleido")
-
+            # create list of dicts with selected points, and plot
+            selected_points = plotly_events(fig)
+            # unsure why?
+            pio.write_image(fig, "fig1.png", format="png", validate="False", engine="kaleido")
+            # if a point was clicked, show info
+            if selected_points:
+                st.markdown("#### **Selected point**")
+                st.markdown("Date: {}".format(selected_points[0]["x"]))
+                st.markdown("Value: {}".format(selected_points[0]["y"]))
 
         # download as PDF
         pdf = FPDF('P', 'mm', 'A4')
