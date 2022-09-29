@@ -73,7 +73,7 @@ if uploaded_file is not None:
                 st.markdown("Value: {}".format(selected_points[0]["y"]))
     else:
         fig = px.line(df, x='Date', y='Value', color=lcb,title=df_type)
-        fig.show()
+        st.plotly_chart(fig, use_container_width=True)
 
     # download as PDF
     st. markdown("### **Save to pdf**")
