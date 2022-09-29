@@ -8,25 +8,20 @@ st.markdown("Upload data to start!")
 
 
 st.sidebar.title("1. Data")
-uploaded_file = st.sidebar.file_uploader("Choose a file (currently only works with CTR & SEA)")
+uploaded_file = st.sidebar.file_uploader("Choose a file (CTR, HMI, or SEA as Excel file)")
 
 if uploaded_file is not None:
 
     # Can be used wherever a "file-like" object is accepted:
-    dataframe = pd.read_excel(uploaded_file)
+    dataframe = pd.read_excel(uploaded_file, sheet_name="Sheet1")
 
     df_type = uploaded_file.name.split("_")[0]
     df = dataframe
     val = "Value"
     date = "Date"
 
-    if df_type == "CTR":
+    if df_type in ["CTR", "HMI"]:
         lcb = "LCB "
-    elif df_type == "HMI":
-        dataframe = pd.read_excel(uploaded_file, header=None)
-        print(dataframe.columns)
-        lcb = "1"
-        # TO-DO : figure our HMI's header
     else:
         lcb = "LCB"
 
