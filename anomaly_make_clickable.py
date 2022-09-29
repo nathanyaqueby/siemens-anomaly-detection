@@ -73,7 +73,7 @@ if uploaded_file is not None:
                 st.markdown("Value: {}".format(selected_points[0]["y"]))
     else:
         fig = px.line(df, x='Date', y='Value', color=lcb,title=df_type)
-        # fig.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.);
+        fig.show()
 
     # download as PDF
     st. markdown("### **Save to pdf**")
