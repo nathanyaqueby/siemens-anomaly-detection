@@ -43,11 +43,11 @@ def predict_model(m_path, df, country):
     result['error'] = result['y'] - result['yhat']
     result['uncertainty'] = result['yhat_upper'] - result['yhat_lower']
     result['anomaly'] = result.apply(lambda x: 'Yes' if(np.abs(x['error']) > 1.5*x['uncertainty']) else 'No', axis = 1)
-    fig = px.scatter(result.reset_index(), x='ds', y='y', color='anomaly', title=country)
-    pio.write_image(fig, "fig2.png", format="png", validate="False", engine="kaleido")
+    fig3 = px.scatter(result.reset_index(), x='ds', y='y', color='anomaly', title=country)
+    pio.write_image(fig3, "fig3.png", format="png", validate="False", engine="kaleido")
 
     # slider
-    fig.update_xaxes(
+    fig3.update_xaxes(
         rangeslider_visible = True,
         rangeselector = dict(
             buttons = list([
@@ -58,7 +58,7 @@ def predict_model(m_path, df, country):
             ])
         )
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig3, use_container_width=True)
     return dic, forecast, result
 
 def analyze_data(df, dic, select, pred, result):
@@ -121,6 +121,15 @@ if uploaded_file is not None:
     else:
         lcb = "LCB"
 
+    
+    # Prepare PDF
+    # st. markdown("### **Save to pdf**")
+    pdf = FPDF('P', 'mm', 'A4')
+    pdf.add_page()
+    pdf.set_font(family='Arial', size=16)
+    pdf.cell(40, 50, txt="Anomaly Detection Report")
+
+
     # st.sidebar.checkbox("Show Analysis by Location", True, key=1)
     st.sidebar.title("2. Location")
     check = st.sidebar.checkbox("Show analysis by location", value=False, key=2)
@@ -162,6 +171,26 @@ if uploaded_file is not None:
         selected_points = plotly_events(fig1)
         # generate image for pdf
         pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
+        pdf.image("fig1.png", w=195, h=65, y=40, x=10)
+
+        # If single country: deploy model
+        st.sidebar.title("3. Model")
+        model_option = st.sidebar.selectbox("Choose a model", ("ARIMA", "Coming soon"))
+
+        with st.expander("## **Model prediction**"):
+            if model_option == "ARIMA":
+                m_path = os.path.join("models", "arima_model.json")
+
+                st.markdown(f"### Predicted anomalies in {df_type} data in {select} from {date_min} to {date_max}")
+
+                dic, pred, result = predict_model(m_path, df, select)
+                evaluation_df = analyze_data(df, dic, select, pred, result)
+
+                st.dataframe(evaluation_df, use_container_width=True)
+
+                pdf.image("fig3.png", w=195, h=65, y=105, x=10)
+            
+        st.sidebar.title("4. Export Results")
     else:
         # Show figure of all data
         st.markdown("## **Product analysis**")
@@ -170,8 +199,9 @@ if uploaded_file is not None:
         fig2 = px.line(df, x='Date', y='Value', color=lcb, title=f"All {df_type} data from {date_min} to {date_max}")
         fig2.update(layout=dict(title=dict(x=0.5)))
         selected_points = plotly_events(fig2)
-        pio.write_image(fig2, "fig1.png", format="png", validate="False", engine="kaleido")
-
+        pio.write_image(fig2, "fig2.png", format="png", validate="False", engine="kaleido")
+        pdf.image("fig2.png", w=195, h=65, y=40, x=10)
+        st.sidebar.title("3. Export Results")
 
     # if a point was clicked, show info
     if selected_points:
@@ -179,31 +209,6 @@ if uploaded_file is not None:
         st.markdown("Date: {}".format(selected_points[0]["x"]))
         st.markdown("Value: {}".format(selected_points[0]["y"]))
 
-    # Prepare PDF
-    # st. markdown("### **Save to pdf**")
-    pdf = FPDF('P', 'mm', 'A4')
-    pdf.add_page()
-    pdf.set_font(family='Arial', size=16)
-    pdf.cell(40, 50, txt="Anomaly Detection Report")
-    # pdf.cell(40, 50, txt=f"Overall {df_type} data in {select} from October 2020 to last week")
-    pdf.image("fig1.png", w=195, h=65, y=40, x=10)
-
-    st.sidebar.title("3. Model")
-    model_option = st.sidebar.selectbox("Choose a model", ("ARIMA", "Coming soon"))
-
-    with st.expander("## **Model prediction**"):
-        if model_option == "ARIMA":
-            m_path = os.path.join("models", "arima_model.json")
-
-            st.markdown(f"### Predicted anomalies in {df_type} data in {select} from {date_min} to {date_max}")
-
-            dic, pred, result = predict_model(m_path, df, select)
-            evaluation_df = analyze_data(df, dic, select, pred, result)
-
-            st.dataframe(evaluation_df, use_container_width=True)
-
-            pdf.image("fig2.png", w=195, h=65, y=105, x=10)
-    
     # download
     st.sidebar.download_button('Download report as PDF',
                     data=pdf.output(dest="S").encode("latin-1"),
