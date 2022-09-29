@@ -69,13 +69,15 @@ if uploaded_file is not None:
             st.plotly_chart(fig, use_container_width=True)
             selected_points = plotly_events(fig)
 
-            # Can write inside of things using with!
-            with st.expander('Plot'):
-                fig = px.line(
-                state_total, 
-                x='Date',
-                y='Value',
-                labels={'Value':'Value in %s' % (select)},
-                width=1200, height=400)
-                st.plotly_chart(fig, use_container_width=True)
-                selected_points = plotly_events(fig)
+            # # Can write inside of things using with!
+            # with st.expander('Plot'):
+            #     fig = px.line(
+            #     state_total, 
+            #     x='Date',
+            #     y='Value',
+            #     labels={'Value':'Value in %s' % (select)},
+            #     width=1200, height=400)
+            #     st.plotly_chart(fig, use_container_width=True)
+            #     selected_points = plotly_events(fig)
+
+            st.markdown("Selected data point, {}:{}".format(selected_points["x"],selected_points["y"]))
