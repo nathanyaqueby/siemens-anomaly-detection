@@ -71,17 +71,20 @@ if uploaded_file is not None:
                 st.markdown("#### **Selected point**")
                 st.markdown("Date: {}".format(selected_points[0]["x"]))
                 st.markdown("Value: {}".format(selected_points[0]["y"]))
+    else:
+        fig = px.line(x='Date', y='Value', hue=lcb, data=df).set(title=df_type)
+        fig.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.);
 
-        # download as PDF
-        st. markdown("### **Save to pdf**")
-        pdf = FPDF('P', 'mm', 'A4')
-        pdf.add_page()
-        pdf.set_font(family='Arial', size=16)
-        pdf.cell(40, 50, txt="Anomaly Detection Report")
-        # pdf.cell(40, 50, txt=f"Overall {df_type} data in {select} from October 2020 to last week")
-        pdf.image("fig1.png", w=195, h=65, y=40, x=10)
+    # download as PDF
+    st. markdown("### **Save to pdf**")
+    pdf = FPDF('P', 'mm', 'A4')
+    pdf.add_page()
+    pdf.set_font(family='Arial', size=16)
+    pdf.cell(40, 50, txt="Anomaly Detection Report")
+    # pdf.cell(40, 50, txt=f"Overall {df_type} data in {select} from October 2020 to last week")
+    pdf.image("fig1.png", w=195, h=65, y=40, x=10)
 
-        st.download_button('Download report as PDF',
-                        data=pdf.output(dest="S").encode("latin-1"),
-                        file_name='anomaly_detection_report.pdf'
-                        )
+    st.download_button('Download report as PDF',
+                    data=pdf.output(dest="S").encode("latin-1"),
+                    file_name='anomaly_detection_report.pdf'
+                    )
