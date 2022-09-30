@@ -12,7 +12,7 @@ from sklearn.neighbors import LocalOutlierFactor
 from sklearn.metrics import confusion_matrix 
 from sklearn import metrics
 from sklearn.preprocessing import LabelEncoder
-from io import BytesID
+from io import BytesIO
 
 #########################
 ## Functions for ARIMA ##
