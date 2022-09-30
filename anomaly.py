@@ -304,6 +304,7 @@ if uploaded_file is not None:
         st.sidebar.title("3. Model")
         model_option = st.sidebar.selectbox("Choose a model", ("ARIMA", "Isolation Forest", "Local Outlier Factor"))
 
+        selected_points = None
         
         # if a point was clicked, show info
         if selected_points:
