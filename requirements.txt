@@ -8,5 +8,4 @@ statsmodels==0.13.2
 fpdf==1.7.2
 kaleido==0.2.1
 numpy==1.21.6
-pystan==2.19
 scikit-learn==1.1.2
