@@ -290,7 +290,7 @@ if uploaded_file is not None:
         with st.expander("I want to see the nerd stats!"):
             pass
 
-        fig_temp = px.scatter(result, x="Date", y="anomaly")
+        fig_temp = px.scatter(result, x="Date", y="Anomaly")
         fig1.add_trace(fig_temp.data[0])
         # create list of dicts with selected points, and plot
         selected_points = plotly_events(fig1)
