@@ -285,7 +285,7 @@ if uploaded_file is not None:
             anomalies = result[result["Anomaly"]=='True']
             st.write(anomalies.head())
             # st.write(state_total.head())
-            fig_temp = px.scatter(anomalies, x="Date", y="y", color='Red')
+            fig_temp = px.scatter(anomalies, x="Date", y="y", color_discrete_sequence=["red"])
             fig1.add_trace(fig_temp.data[0])
             # create list of dicts with selected points, and plot
             # selected_points = plotly_events(fig1)
