@@ -140,7 +140,7 @@ def fit_predict_model(m_path, dataframe,dataframe1):
 
     result['Label_pred_num'] = le.fit_transform(result['Anomaly'])
     result.reset_index(inplace=True)
-    result.rename(columns={"index": "Date"},inplace=True)
+    result.rename(columns={"ds": "Date"},inplace=True)
     return forecast,result
 
 # new ARIMA extra function
