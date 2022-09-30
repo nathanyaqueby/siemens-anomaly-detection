@@ -7,7 +7,6 @@ from fpdf import FPDF
 from streamlit_plotly_events import plotly_events
 import os
 import statsmodels.tsa.stattools as sta
-from fbprophet import Prophet
 from prophet.serialize import model_from_json
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.metrics import confusion_matrix 
@@ -118,12 +117,10 @@ def analyze_data(df, dic, select, pred, result):
     return evaluation_df
 
 # new ARIMA 
-def fit_predict_model(dataframe,dataframe1,interval_width=0.4, changepoint_range = 0.8):
-    m = Prophet(daily_seasonality = False, yearly_seasonality = False, weekly_seasonality = False,
-                seasonality_mode = 'additive')
-                #interval_width = interval_width,
-                #changepoint_range = changepoint_range)
-    m = m.fit(dataframe)
+def fit_predict_model(m_path, dataframe,dataframe1):
+    with open(m_path, "r") as fin:
+        m = model_from_json(fin.read())
+        
     forecast = m.predict(dataframe)
     forecast['fact'] = dataframe['y'].reset_index(drop = True)
 
@@ -270,7 +267,7 @@ if uploaded_file is not None:
         st.markdown("## **Model prediction**")
         with st.expander("I want to see the nerd stats!"):
             if model_option == "ARIMA":
-                m_path = os.path.join("models", "arima_model.json")
+                m_path = os.path.join("models", "arima_model_2.json")
 
                 st.markdown(f"### Predicted anomalies in {df_type} data in {select} from {date_min} to {date_max}")
 
@@ -283,7 +280,7 @@ if uploaded_file is not None:
                 # new ARIMA
                 evaluation = {}
                 if test_stationarity(dic[country], 'y')=='Stationary':
-                    pred,result = fit_predict_model(dic[country],dic[country])
+                    pred,result = fit_predict_model(m_path, dic[country],dic[country])
                     output = analyze2(dic, df_type)
                 else:
                     output={}
