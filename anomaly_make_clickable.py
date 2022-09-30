@@ -287,11 +287,13 @@ if uploaded_file is not None:
         fig_temp = px.bar(anomalies, x="Date", y="y")
         fig1.add_trace(fig_temp.data[0])
         # create list of dicts with selected points, and plot
-        selected_points = plotly_events(fig1)
+        # selected_points = plotly_events(fig1)
+        st.plotly_chart(fig1,use_container_width=True)
         # generate image for pdf
         pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
         pdf.image("fig1.png", w=195, h=65, y=40, x=10)
 
+        selected_points = None
         
         # if a point was clicked, show info
         if selected_points:
