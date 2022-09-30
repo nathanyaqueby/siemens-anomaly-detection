@@ -213,8 +213,6 @@ if uploaded_file is not None:
 
         #get the state selected in the selectbox
         state_data = df[df[lcb] == select]
-        st.write(state_data)
-        st.write(type(state_data))
         countries=df[lcb].unique()
 
         # initialise dictionaries for ARIMA
@@ -274,8 +272,8 @@ if uploaded_file is not None:
             
             # new ARIMA
             evaluation = {}
-            if test_stationarity(dic[country], 'y')=='Stationary':
-                pred,result = fit_predict_model(m_path, dic[country])
+            if test_stationarity(dic[select], 'y')=='Stationary':
+                pred,result = fit_predict_model(m_path, dic[select])
                 output = analyze2(dic, df_type)
             else:
                 output={}
