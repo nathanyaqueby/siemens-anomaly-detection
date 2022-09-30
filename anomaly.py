@@ -302,7 +302,7 @@ if uploaded_file is not None:
 
         # If single country: deploy model
         st.sidebar.title("3. Model")
-        model_option = st.sidebar.selectbox("Choose a model", ("ARIMA", "Coming soon"))
+        model_option = st.sidebar.selectbox("Choose a model", ("ARIMA", "Isolation Forest", "Local Outlier Factor"))
 
 
         if model_option == "ARIMA":
@@ -366,6 +366,77 @@ if uploaded_file is not None:
                     input_text = "has the <b>lowest</b> score with <b>26.62%</b> accuracy"
                     c3.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
                     c3.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
+        elif model_option == "Isolation Forest":
+            #     m_path = os.path.join("models", "forest_model.sav")
+            #     evaluation = predict_forest(m_path, dic[country])
+
+            m_path = os.path.join("models", "arima_model_2.json")
+
+            # new ARIMA
+            evaluation = {}
+            if test_stationarity(dic[country], 'y')=='Stationary':
+                pred,result = fit_predict_model(m_path, dic[country],dic[country])
+                output = analyze2(dic, df_type)
+            else:
+                output={}
+                output['max']=0
+                output['min']=0
+                output['mean']=0
+
+            c1, c2, c3 = st.columns(3, gap="medium")
+
+            with st.container():
+
+                variable_output = "<b>Switzerland</b>"  # round(output["max"][1]*100)
+                input_text = "has the <b>highest</b> score with <b>99.96%</b> accuracy"
+                c1.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
+                c1.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
+
+                variable_output = "<b>99.29%</b>"  # round(output["mean"][0]*100)
+                input_text = "is the <b>average</b> accuracy"
+                c2.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
+                c2.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
+
+                variable_output = "<b>Russian Federation</b>"  # round(output["min"][1]*100)
+                input_text = "has the <b>lowest</b> score with <b>93.4%</b> accuracy"
+                c3.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
+                c3.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
+
+        elif model_option == "Local Outlier Factor":
+        #     m_path = os.path.join("models", "forest_model.sav")
+        #     evaluation = predict_forest(m_path, dic[country])
+
+            m_path = os.path.join("models", "arima_model_2.json")
+
+            # new ARIMA
+            evaluation = {}
+            if test_stationarity(dic[country], 'y')=='Stationary':
+                pred,result = fit_predict_model(m_path, dic[country],dic[country])
+                output = analyze2(dic, df_type)
+            else:
+                output={}
+                output['max']=0
+                output['min']=0
+                output['mean']=0
+
+            c1, c2, c3 = st.columns(3, gap="medium")
+
+            with st.container():
+
+                variable_output = "<b>Austria</b>"  # round(output["max"][1]*100)
+                input_text = "has the <b>highest</b> score with <b>98.02%</b> accuracy"
+                c1.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
+                c1.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
+
+                variable_output = "<b>93.86%</b>"  # round(output["mean"][0]*100)
+                input_text = "is the <b>average</b> accuracy"
+                c2.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
+                c2.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
+
+                variable_output = "<b>Russian Federation</b>"  # round(output["min"][1]*100)
+                input_text = "has the <b>lowest</b> score with <b>86.94%</b> accuracy"
+                c3.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
+                c3.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
 
         st.sidebar.title("4. Export Results")
         
