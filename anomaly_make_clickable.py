@@ -241,7 +241,7 @@ if uploaded_file is not None:
         date_min=df.Date.iloc[0].strftime("%B %Y")
         date_max=df.Date.iloc[-1].strftime("%B %Y")
 
-        fig1 = px.line(
+        fig1 = px.scatter(
             state_total, 
             x='Date',
             y='Value',
