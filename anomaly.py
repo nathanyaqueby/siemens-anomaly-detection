@@ -145,7 +145,7 @@ def fit_predict_model(m_path, dataframe,dataframe1):
     return forecast,result
 
 # new ARIMA extra function
-def analyze2(dic,name):
+def analyze2(dic,name,country):
     fpr, tpr, thresholds = metrics.roc_curve(dic[country]['Label_num'].values, result['Label_pred_num'].values) 
     TN, FP, FN, TP = confusion_matrix(dic[country]['Label_num'].values, result['Label_pred_num'].values).ravel() 
     acc= (TP+TN)/(TP+TN+FP+FN)
@@ -316,9 +316,9 @@ if uploaded_file is not None:
             
             # new ARIMA
             evaluation = {}
-            if test_stationarity(dic[country], 'y')=='Stationary':
-                pred,result = fit_predict_model(m_path, dic[country],dic[country])
-                output = analyze2(dic, df_type)
+            if test_stationarity(dic[select], 'y')=='Stationary':
+                pred,result = fit_predict_model(m_path, dic[select],dic[select])
+                output = analyze2(dic, df_type,select)
             else:
                 output={}
                 output['max']=0
