@@ -250,7 +250,7 @@ if uploaded_file is not None:
         title=f"{df_type} data in {select} from {date_min} to {date_max}")
         fig1.update(layout=dict(title=dict(x=0.5)))
         # create list of dicts with selected points, and plot
-        selected_points = plotly_events(fig1)
+        # selected_points = plotly_events(fig1)
 
         # If single country: deploy model
         st.sidebar.title("3. Model")
@@ -259,16 +259,11 @@ if uploaded_file is not None:
         # # intitialize point selection as None since figure not generated yet
         # selected_points = None
         
-        # if a point was clicked, show info
-        if selected_points:
-            st.markdown("#### **Selected point**")
-            st.markdown("Date: {}".format(selected_points[0]["x"]))
-            st.markdown("Value: {}".format(selected_points[0]["y"]))
 
         if model_option == "ARIMA":
             m_path = os.path.join("models", "arima_model_2.json")
 
-            st.markdown(f"### Predicted anomalies in {df_type} data in {select} from {date_min} to {date_max}")
+            # st.markdown(f"### Predicted anomalies in {df_type} data in {select} from {date_min} to {date_max}")
 
             # old ARIMA
             # dic, pred, result = predict_model(m_path, df, select)
@@ -287,11 +282,6 @@ if uploaded_file is not None:
                 output['min']=0
                 output['mean']=0
 
-        
-        st.markdown("## **Model prediction**")
-        with st.expander("I want to see the nerd stats!"):
-            pass
-
         # add anomalies in scatter form
         anomalies = result[result["Anomaly"]==True]
         fig_temp = px.bar(anomalies, x="Date", y="y")
@@ -301,6 +291,18 @@ if uploaded_file is not None:
         # generate image for pdf
         pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
         pdf.image("fig1.png", w=195, h=65, y=40, x=10)
+
+        
+        # if a point was clicked, show info
+        if selected_points:
+            st.markdown("#### **Selected point**")
+            st.markdown("Date: {}".format(selected_points[0]["x"]))
+            st.markdown("Value: {}".format(selected_points[0]["y"]))
+
+        if model_option == "ARIMA":
+            st.markdown("## **Model prediction**")
+            with st.expander("I want to see the nerd stats!"):
+                pass
 
         st.sidebar.title("4. Export Results")
     else:
