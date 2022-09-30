@@ -117,7 +117,7 @@ def analyze_data(df, dic, select, pred, result):
     return evaluation_df
 
 # new ARIMA 
-def fit_predict_model(m_path, dataframe,dataframe1):
+def fit_predict_model(m_path, dataframe):
     with open(m_path, "r") as fin:
         m = model_from_json(fin.read())
         
@@ -128,7 +128,7 @@ def fit_predict_model(m_path, dataframe,dataframe1):
     result['error'] = result['y'] - result['yhat']
     result['uncertainty'] = result['yhat_upper'] - result['yhat_lower']
     result['Anomaly'] = result.apply(lambda x: 'True' if(np.abs(x['error']) > 1.0*x['uncertainty']) else 'False', axis = 1)
-    result['Label']=dataframe1['Label'].values
+    result['Label']=dataframe['Label'].values
     #create new column 'Good' using the function above
     result['Label_pred'] = result[result['Anomaly']=='True'].apply(f, axis=1)
     result['Label_pred']=result['Label_pred'].replace(np.nan,'normal')
@@ -213,7 +213,8 @@ if uploaded_file is not None:
 
         #get the state selected in the selectbox
         state_data = df[df[lcb] == select]
-
+        st.write(state_data)
+        st.write(type(state_data))
         countries=df[lcb].unique()
 
         # initialise dictionaries for ARIMA
@@ -274,7 +275,7 @@ if uploaded_file is not None:
             # new ARIMA
             evaluation = {}
             if test_stationarity(dic[country], 'y')=='Stationary':
-                pred,result = fit_predict_model(m_path, dic[country],dic[country])
+                pred,result = fit_predict_model(m_path, dic[country])
                 output = analyze2(dic, df_type)
             else:
                 output={}
