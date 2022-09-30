@@ -242,12 +242,12 @@ if uploaded_file is not None:
         date_max=df.Date.iloc[-1].strftime("%B %Y")
 
         fig1 = px.line(
-        state_total, 
-        x='Date',
-        y='Value',
-        labels={'Value':'Value in %s' % (select)},
-        width=1200, height=400,
-        title=f"{df_type} data in {select} from {date_min} to {date_max}")
+            state_total, 
+            x='Date',
+            y='Value',
+            labels={'Value':'Value in %s' % (select)},
+            width=1200, height=400,
+            title=f"{df_type} data in {select} from {date_min} to {date_max}")
         fig1.update(layout=dict(title=dict(x=0.5)))
         # create list of dicts with selected points, and plot
         # selected_points = plotly_events(fig1)
@@ -282,19 +282,19 @@ if uploaded_file is not None:
                 output['min']=0
                 output['mean']=0
 
-        # add anomalies in scatter form
-        anomalies = result[result["Anomaly"]==True]
-        fig_temp = px.bar(anomalies, x="Date", y="y")
-        fig1.add_trace(fig_temp.data[0])
-        # create list of dicts with selected points, and plot
-        # selected_points = plotly_events(fig1)
-        st.plotly_chart(fig1,use_container_width=True)
-        # generate image for pdf
-        pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
-        pdf.image("fig1.png", w=195, h=65, y=40, x=10)
+            # add anomalies in scatter form
+            anomalies = result[result["Anomaly"]==True]
+            fig_temp = px.bar(anomalies, x="Date", y="y")
+            fig1.add_trace(fig_temp.data[0])
+            # create list of dicts with selected points, and plot
+            # selected_points = plotly_events(fig1)
+            st.plotly_chart(fig1,use_container_width=True)
+            # generate image for pdf
+            pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
+            pdf.image("fig1.png", w=195, h=65, y=40, x=10)
 
         selected_points = None
-        
+
         # if a point was clicked, show info
         if selected_points:
             st.markdown("#### **Selected point**")
