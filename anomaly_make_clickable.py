@@ -295,7 +295,7 @@ if uploaded_file is not None:
             pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
             pdf.image("fig1.png", w=195, h=65, y=40, x=10)
 
-        # selected_points = None
+        selected_points = None
 
         # if a point was clicked, show info
         if selected_points:
