@@ -8,7 +8,14 @@ from streamlit_plotly_events import plotly_events
 import os
 import statsmodels.tsa.stattools as sta
 from prophet.serialize import model_from_json
+from sklearn.neighbors import LocalOutlierFactor
+from sklearn.metrics import confusion_matrix 
+from sklearn import metrics
+from sklearn.preprocessing import LabelEncoder
 
+#########################
+## Functions for ARIMA ##
+#########################
 
 def test_stationarity(ts_data, column='', signif=0.05, series=False):
     if series:
@@ -22,6 +29,18 @@ def test_stationarity(ts_data, column='', signif=0.05, series=False):
         test_result = "Non-Stationary"
     return test_result
 
+# identify anomaly type of arima
+def f(row):
+    if row['error'] >0:
+        val = 'high peak'
+    elif row['error'] < 0:
+        val = 'low peak'
+    return val
+def f1(row):
+    val='normal'
+    return val
+
+# old ARIMA
 def predict_model(m_path, df, country):
 
     dic={}
@@ -61,6 +80,7 @@ def predict_model(m_path, df, country):
     st.plotly_chart(fig3, use_container_width=True)
     return dic, forecast, result
 
+# old ARIMA extra function
 def analyze_data(df, dic, select, pred, result):
     evaluation={}
     dic1={}
@@ -96,6 +116,61 @@ def analyze_data(df, dic, select, pred, result):
     evaluation_df=pd.DataFrame(evaluation)
     return evaluation_df
 
+# new ARIMA 
+def fit_predict_model(dataframe,dataframe1,interval_width=0.4, changepoint_range = 0.8):
+    m = Prophet(daily_seasonality = False, yearly_seasonality = False, weekly_seasonality = False,
+                seasonality_mode = 'additive')
+                #interval_width = interval_width,
+                #changepoint_range = changepoint_range)
+    m = m.fit(dataframe)
+    forecast = m.predict(dataframe)
+    forecast['fact'] = dataframe['y'].reset_index(drop = True)
+
+    result = pd.concat([dataframe.set_index('ds')['y'], forecast.set_index('ds')[['yhat','yhat_lower','yhat_upper']]], axis=1)
+    result['error'] = result['y'] - result['yhat']
+    result['uncertainty'] = result['yhat_upper'] - result['yhat_lower']
+    result['Anomaly'] = result.apply(lambda x: 'True' if(np.abs(x['error']) > 1.0*x['uncertainty']) else 'False', axis = 1)
+    result['Label']=dataframe1['Label'].values
+    #create new column 'Good' using the function above
+    result['Label_pred'] = result[result['Anomaly']=='True'].apply(f, axis=1)
+    result['Label_pred']=result['Label_pred'].replace(np.nan,'normal')
+    # Using .fit_transform function to fit label
+    # encoder and return encoded label
+   
+    # Creating a instance of label Encoder.
+    le = LabelEncoder()
+
+    result['Label_pred_num'] = le.fit_transform(result['Anomaly'])
+    return forecast,result
+
+# new ARIMA extra function
+def analyze2(dic,name):
+    fpr, tpr, thresholds = metrics.roc_curve(dic[country]['Label_num'].values, result['Label_pred_num'].values) 
+    TN, FP, FN, TP = confusion_matrix(dic[country]['Label_num'].values, result['Label_pred_num'].values).ravel() 
+    acc= (TP+TN)/(TP+TN+FP+FN)
+    precision=TP/(TP+FP)
+    TPR=TP/(TP+FN)
+    FPR=FP/(TP+FP)
+    F1_score=(2*precision*TPR)/(precision+TPR)
+    new_ratio = ((3*TPR)+precision)/4
+
+    evaluation[country+'_'+name]=new_ratio
+
+    fin_max = max(evaluation, key=evaluation.get)
+    fin_min = min(evaluation, key=evaluation.get)
+    fin_mean=sum(evaluation.values())/len(evaluation)
+
+    output={}
+    output['max']=[fin_max,evaluation[fin_max]]
+    output['min']=[fin_min,evaluation[fin_min]]
+    output['mean']=[fin_mean]#,evaluation[fin_mean]]
+
+    return output
+
+
+###############
+## Dashboard ##
+###############
 
 st.set_page_config(layout="wide")
 st.title("Anomaly Detection Team - Challenge 4")
@@ -120,7 +195,6 @@ if uploaded_file is not None:
         lcb = "LCB "
     else:
         lcb = "LCB"
-
     
     # Prepare PDF
     # st. markdown("### **Save to pdf**")
@@ -128,7 +202,6 @@ if uploaded_file is not None:
     pdf.add_page()
     pdf.set_font(family='Arial', size=16)
     pdf.cell(40, 50, txt="Anomaly Detection Report")
-
 
     # st.sidebar.checkbox("Show Analysis by Location", True, key=1)
     st.sidebar.title("2. Location")
@@ -142,9 +215,18 @@ if uploaded_file is not None:
         state_data = df[df[lcb] == select]
 
         countries=df[lcb].unique()
-        dic = {}
+
+        # initialise dictionaries for ARIMA
+        dic={}
+        # dic1={}
+
         for country in countries:
             dic[country]=df[df[lcb]==country]
+            dic[country].Label=dic[country].Label.replace(np.nan,'normal')
+            dic[country]['Label_num']=np.where(dic[country]['Label']=='normal',0,1)
+            dic[country]=dic[country].rename(columns = {"Date":"ds","Value":"y"})
+
+
 
         def get_total_dataframe(dataset):
             total_dataframe = pd.DataFrame({
@@ -191,13 +273,23 @@ if uploaded_file is not None:
 
                 st.markdown(f"### Predicted anomalies in {df_type} data in {select} from {date_min} to {date_max}")
 
-                dic, pred, result = predict_model(m_path, df, select)
-                evaluation_df = analyze_data(df, dic, select, pred, result)
+                # old ARIMA
+                # dic, pred, result = predict_model(m_path, df, select)
+                # evaluation_df = analyze_data(df, dic, select, pred, result)
+                # st.dataframe(evaluation_df, use_container_width=True)
+                # pdf.image("fig3.png", w=195, h=65, y=105, x=10)
+                
+                # new ARIMA
+                evaluation = {}
+                if test_stationarity(dic[country], 'y')=='Stationary':
+                    pred,result = fit_predict_model(dic[country],dic[country])
+                    output = analyze2(dic, df_type)
+                else:
+                    output={}
+                    output['max']=0
+                    output['min']=0
+                    output['mean']=0
 
-                st.dataframe(evaluation_df, use_container_width=True)
-
-                pdf.image("fig3.png", w=195, h=65, y=105, x=10)
-            
         st.sidebar.title("4. Export Results")
     else:
         # Show figure of all data
