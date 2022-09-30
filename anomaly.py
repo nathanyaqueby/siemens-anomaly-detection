@@ -312,31 +312,64 @@ if uploaded_file is not None:
             st.markdown("Date: {}".format(selected_points[0]["x"]))
             st.markdown("Value: {}".format(selected_points[0]["y"]))
 
+        
+        if model_option == "ARIMA":
+            m_path = os.path.join("models", "arima_model_2.json")
+
+            # st.markdown(f"### Predicted anomalies in {df_type} data from {date_min} to {date_max}")
+
+            # old ARIMA
+            # dic, pred, result = predict_model(m_path, df, select)
+            # evaluation_df = analyze_data(df, dic, select, pred, result)
+            # st.dataframe(evaluation_df, use_container_width=True)
+            # pdf.image("fig3.png", w=195, h=65, y=105, x=10)
+            
+            # new ARIMA
+            evaluation = {}
+            if test_stationarity(dic[select], 'y')=='Stationary':
+                pred,result = fit_predict_model(m_path, dic[select],dic[select])
+                output = analyze2(dic, df_type,country)
+            else:
+                output={}
+                output['max']=0
+                output['min']=0
+                output['mean']=0
+        elif model_option == "Isolation Forest":
+        #     m_path = os.path.join("models", "forest_model.sav")
+        #     evaluation = predict_forest(m_path, dic[select])
+
+            m_path = os.path.join("models", "arima_model_2.json")
+            
+            # new ARIMA
+            evaluation = {}
+            if test_stationarity(dic[select], 'y')=='Stationary':
+                pred,result = fit_predict_model(m_path, dic[select],dic[select])
+                output = analyze2(dic, df_type,country)
+            else:
+                output={}
+                output['max']=0
+                output['min']=0
+                output['mean']=0
+        elif model_option == "Local Outlier Factor":
+        #     m_path = os.path.join("models", "forest_model.sav")
+        #     evaluation = predict_forest(m_path, dic[select])
+
+            m_path = os.path.join("models", "arima_model_2.json")
+            
+            # new ARIMA
+            evaluation = {}
+            if test_stationarity(dic[select], 'y')=='Stationary':
+                pred,result = fit_predict_model(m_path, dic[select],dic[select])
+                output = analyze2(dic, df_type,country)
+            else:
+                output={}
+                output['max']=0
+                output['min']=0
+                output['mean']=0
+
         st.markdown("## **Model prediction**")
-        result = None
         with st.expander("I want to see the nerd stats!"):
             if model_option == "ARIMA":
-                m_path = os.path.join("models", "arima_model_2.json")
-
-                # st.markdown(f"### Predicted anomalies in {df_type} data from {date_min} to {date_max}")
-
-                # old ARIMA
-                # dic, pred, result = predict_model(m_path, df, select)
-                # evaluation_df = analyze_data(df, dic, select, pred, result)
-                # st.dataframe(evaluation_df, use_container_width=True)
-                # pdf.image("fig3.png", w=195, h=65, y=105, x=10)
-                
-                # new ARIMA
-                evaluation = {}
-                if test_stationarity(dic[country], 'y')=='Stationary':
-                    pred,result = fit_predict_model(m_path, dic[country],dic[country])
-                    output = analyze2(dic, df_type,country)
-                else:
-                    output={}
-                    output['max']=0
-                    output['min']=0
-                    output['mean']=0
-                
                 c1, c2, c3 = st.columns(3, gap="medium")
 
                 with st.container():
@@ -355,24 +388,8 @@ if uploaded_file is not None:
                     input_text = "has the <b>lowest</b> score with <b>26.62%</b> accuracy"
                     c3.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
                     c3.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
-            
             elif model_option == "Isolation Forest":
-            #     m_path = os.path.join("models", "forest_model.sav")
-            #     evaluation = predict_forest(m_path, dic[country])
-
-                m_path = os.path.join("models", "arima_model_2.json")
-                
-                # new ARIMA
-                evaluation = {}
-                if test_stationarity(dic[country], 'y')=='Stationary':
-                    pred,result = fit_predict_model(m_path, dic[country],dic[country])
-                    output = analyze2(dic, df_type,country)
-                else:
-                    output={}
-                    output['max']=0
-                    output['min']=0
-                    output['mean']=0
-
+            
                 c1, c2, c3 = st.columns(3, gap="medium")
 
                 with st.container():
@@ -391,24 +408,8 @@ if uploaded_file is not None:
                     input_text = "has the <b>lowest</b> score with <b>93.4%</b> accuracy"
                     c3.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
                     c3.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
-            
-            if model_option == "Local Outlier Factor":
-            #     m_path = os.path.join("models", "forest_model.sav")
-            #     evaluation = predict_forest(m_path, dic[country])
-
-                m_path = os.path.join("models", "arima_model_2.json")
+            elif model_option == "Local Outlier Factor":
                 
-                # new ARIMA
-                evaluation = {}
-                if test_stationarity(dic[country], 'y')=='Stationary':
-                    pred,result = fit_predict_model(m_path, dic[country],dic[country])
-                    output = analyze2(dic, df_type,country)
-                else:
-                    output={}
-                    output['max']=0
-                    output['min']=0
-                    output['mean']=0
-
                 c1, c2, c3 = st.columns(3, gap="medium")
 
                 with st.container():
