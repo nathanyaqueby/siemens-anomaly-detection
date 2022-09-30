@@ -12,6 +12,7 @@ from sklearn.neighbors import LocalOutlierFactor
 from sklearn.metrics import confusion_matrix 
 from sklearn import metrics
 from sklearn.preprocessing import LabelEncoder
+from io import BytesIO
 
 #########################
 ## Functions for ARIMA ##
@@ -187,6 +188,34 @@ def create_html(input_txt, mode):
                     """
     return html_txt
 
+# save as excel
+def to_excel_utils(df: pd.DataFrame, name: str) -> bytes:
+    """
+    Converts data to excel format and encodes to base64.
+
+    Args:
+        df (pd.DataFrame): project data
+        name (str): project name
+
+    Returns:
+        b64 (bytes): Encoded project (excel) data
+    """
+    
+    output = BytesIO()
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+
+    if isinstance(df, pd.DataFrame):
+        df.to_excel(writer, index=True, sheet_name=name)
+    else:
+        for df_save, sheet in zip(df, name):
+            df_save.to_excel(writer, index=True, sheet_name=sheet)
+
+    writer.save()
+
+    processed_data = output.getvalue()
+
+    return processed_data
+
 ###############
 ## Dashboard ##
 ###############
@@ -330,6 +359,20 @@ if uploaded_file is not None:
                     c3.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
 
         st.sidebar.title("4. Export Results")
+        
+        col1, col2 = st.sidebar.columns([1,1])
+        col1.download_button(
+            'Download PDF',
+            data=pdf.output(dest="S").encode("latin-1"),
+            file_name='anomaly_detection_data.pdf'
+        )
+
+        col2.download_button(
+            label = "Download Excel",
+            data = to_excel_utils(result, 'Sheet1'),
+            file_name = "anomaly_detection_data.xlsx",
+            mime = "application/vnd.ms-excel"
+        )
     else:
         # Show figure of all data
         st.markdown("## **Product analysis**")
@@ -348,8 +391,8 @@ if uploaded_file is not None:
             st.markdown("Date: {}".format(selected_points[0]["x"]))
             st.markdown("Value: {}".format(selected_points[0]["y"]))
 
-    # download
-    st.sidebar.download_button('Download report as PDF',
-                    data=pdf.output(dest="S").encode("latin-1"),
-                    file_name='anomaly_detection_report.pdf'
-                    )
+        # download
+        st.sidebar.download_button('Download report as PDF',
+                        data=pdf.output(dest="S").encode("latin-1"),
+                        file_name='anomaly_detection_report.pdf'
+                        )
