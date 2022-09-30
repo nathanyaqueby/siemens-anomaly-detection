@@ -283,7 +283,7 @@ if uploaded_file is not None:
 
             # add anomalies in scatter form
             anomalies = result[result["Anomaly"]=='True']
-            st.write(anomalies.head())
+            # st.write(anomalies.head())
             # st.write(state_total.head())
             fig_temp = px.scatter(anomalies, x="Date", y="y", color_discrete_sequence=["red"])
             fig1.add_trace(fig_temp.data[0])
@@ -295,7 +295,7 @@ if uploaded_file is not None:
             pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
             pdf.image("fig1.png", w=195, h=65, y=40, x=10)
 
-        selected_points = None
+        # selected_points = None
 
         # if a point was clicked, show info
         if selected_points:
