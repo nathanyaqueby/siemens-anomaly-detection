@@ -290,7 +290,7 @@ if uploaded_file is not None:
             if model_option == "ARIMA":
                 m_path = os.path.join("models", "arima_model_2.json")
 
-                st.markdown(f"### Predicted anomalies in {df_type} data in {select} from {date_min} to {date_max}")
+                # st.markdown(f"### Predicted anomalies in {df_type} data in {select} from {date_min} to {date_max}")
 
                 # old ARIMA
                 # dic, pred, result = predict_model(m_path, df, select)
