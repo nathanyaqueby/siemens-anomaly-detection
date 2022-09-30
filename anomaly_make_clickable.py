@@ -139,7 +139,7 @@ def fit_predict_model(m_path, dataframe,dataframe1):
     le = LabelEncoder()
 
     result['Label_pred_num'] = le.fit_transform(result['Anomaly'])
-    result.reset_image(names=['Date'])
+    result.reset_index(names=['Date'])
     return forecast,result
 
 # new ARIMA extra function
