@@ -7,6 +7,7 @@ from fpdf import FPDF
 from streamlit_plotly_events import plotly_events
 import os
 import statsmodels.tsa.stattools as sta
+from fbprophet import Prophet
 from prophet.serialize import model_from_json
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.metrics import confusion_matrix 
