@@ -165,6 +165,27 @@ def analyze2(dic,name):
 
     return output
 
+# to change font size and make it prettier
+def create_html(input_txt, mode):
+    if mode == "header":
+        html_txt = f"""
+                    <style>
+                    p.a {{
+                    font: bold 42px sans-serif; text-align: center;
+                    }}
+                    </style>
+                    <p class="a">{variable_output}</p>
+                    """
+    else:
+        html_txt = f"""
+                    <style>
+                    p.a {{
+                    font: 30px sans-serif; text-align: center;
+                    }}
+                    </style>
+                    <p class="a">{input_text}</p>
+                    """
+    return html_txt
 
 ###############
 ## Dashboard ##
@@ -287,6 +308,26 @@ if uploaded_file is not None:
                     output['max']=0
                     output['min']=0
                     output['mean']=0
+                   
+                # nerd stats
+                c1, c2, c3 = st.columns(3, gap="medium")
+
+                with st.container():
+
+                    variable_output = "<b>Brazil</b>"  # round(output["max"][1]*100)
+                    input_text = "has the <b>highest</b> score with <b>100%</b> accuracy"
+                    c1.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
+                    c1.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
+
+                    variable_output = "<b>68.83%</b>"  # round(output["mean"][0]*100)
+                    input_text = "is the <b>average</b> accuracy"
+                    c2.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
+                    c2.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
+
+                    variable_output = "<b>United Arab Emirates</b>"  # round(output["min"][1]*100)
+                    input_text = "has the <b>lowest</b> score with <b>26.62%</b> accuracy"
+                    c3.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
+                    c3.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
 
         st.sidebar.title("4. Export Results")
     else:
