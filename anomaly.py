@@ -328,7 +328,7 @@ if uploaded_file is not None:
             evaluation = {}
             if test_stationarity(dic[select], 'y')=='Stationary':
                 pred,result = fit_predict_model(m_path, dic[select],dic[select])
-                output = analyze2(dic, df_type,country)
+                output = analyze2(dic, df_type,select)
             else:
                 output={}
                 output['max']=0
@@ -360,7 +360,7 @@ if uploaded_file is not None:
             evaluation = {}
             if test_stationarity(dic[select], 'y')=='Stationary':
                 pred,result = fit_predict_model(m_path, dic[select],dic[select])
-                output = analyze2(dic, df_type,country)
+                output = analyze2(dic, df_type,select)
             else:
                 output={}
                 output['max']=0
