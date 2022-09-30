@@ -304,54 +304,42 @@ if uploaded_file is not None:
         st.sidebar.title("3. Model")
         model_option = st.sidebar.selectbox("Choose a model", ("ARIMA", "Isolation Forest", "Local Outlier Factor"))
 
-
-        if model_option == "ARIMA":
-            m_path = os.path.join("models", "arima_model_2.json")
-
-            # old ARIMA
-            # dic, pred, result = predict_model(m_path, df, select)
-            # evaluation_df = analyze_data(df, dic, select, pred, result)
-            # st.dataframe(evaluation_df, use_container_width=True)
-            # pdf.image("fig3.png", w=195, h=65, y=105, x=10)
-            
-            # new ARIMA
-            evaluation = {}
-            if test_stationarity(dic[select], 'y')=='Stationary':
-                pred,result = fit_predict_model(m_path, dic[select],dic[select])
-                output = analyze2(dic, df_type,select)
-            else:
-                output={}
-                output['max']=0
-                output['min']=0
-                output['mean']=0
-            
-            # add anomalies in scatter form
-            anomalies = result[result["Anomaly"]=='True']
-            fig_temp = px.scatter(anomalies, x="Date", y="y", color_discrete_sequence=["red"])
-            fig1.add_trace(fig_temp.data[0])
-            # create list of dicts with selected points, and plot
-            # selected_points = plotly_events(fig1)
-            st.plotly_chart(fig1,use_container_width=True)
-            # st.plotly_chart(fig_temp,use_container_width=True)
-            # generate image for pdf
-            pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
-            pdf.image("fig1.png", w=195, h=65, y=40, x=10)
-
-
-        selected_points = None
-
+        
         # if a point was clicked, show info
         if selected_points:
             st.markdown("#### **Selected point**")
             st.markdown("Date: {}".format(selected_points[0]["x"]))
             st.markdown("Value: {}".format(selected_points[0]["y"]))
 
-        if model_option == 'ARIMA':
-            st.markdown("## **Model prediction**")
-            with st.expander("I want to see the nerd stats!"):
-                # nerd stats
+        st.markdown("## **Model prediction**")
+        result = None
+        with st.expander("I want to see the nerd stats!"):
+            if model_option == "ARIMA":
+                m_path = os.path.join("models", "arima_model_2.json")
+
+                # st.markdown(f"### Predicted anomalies in {df_type} data from {date_min} to {date_max}")
+
+                # old ARIMA
+                # dic, pred, result = predict_model(m_path, df, select)
+                # evaluation_df = analyze_data(df, dic, select, pred, result)
+                # st.dataframe(evaluation_df, use_container_width=True)
+                # pdf.image("fig3.png", w=195, h=65, y=105, x=10)
+                
+                # new ARIMA
+                evaluation = {}
+                if test_stationarity(dic[country], 'y')=='Stationary':
+                    pred,result = fit_predict_model(m_path, dic[country],dic[country])
+                    output = analyze2(dic, df_type)
+                else:
+                    output={}
+                    output['max']=0
+                    output['min']=0
+                    output['mean']=0
+                
                 c1, c2, c3 = st.columns(3, gap="medium")
+
                 with st.container():
+
                     variable_output = "<b>Brazil</b>"  # round(output["max"][1]*100)
                     input_text = "has the <b>highest</b> score with <b>100%</b> accuracy"
                     c1.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
@@ -366,80 +354,82 @@ if uploaded_file is not None:
                     input_text = "has the <b>lowest</b> score with <b>26.62%</b> accuracy"
                     c3.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
                     c3.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
-        elif model_option == "Isolation Forest":
+            
+            elif model_option == "Isolation Forest":
             #     m_path = os.path.join("models", "forest_model.sav")
             #     evaluation = predict_forest(m_path, dic[country])
 
-            m_path = os.path.join("models", "arima_model_2.json")
+                m_path = os.path.join("models", "arima_model_2.json")
+                
+                # new ARIMA
+                evaluation = {}
+                if test_stationarity(dic[country], 'y')=='Stationary':
+                    pred,result = fit_predict_model(m_path, dic[country],dic[country])
+                    output = analyze2(dic, df_type)
+                else:
+                    output={}
+                    output['max']=0
+                    output['min']=0
+                    output['mean']=0
 
-            # new ARIMA
-            evaluation = {}
-            if test_stationarity(dic[country], 'y')=='Stationary':
-                pred,result = fit_predict_model(m_path, dic[country],dic[country])
-                output = analyze2(dic, df_type,select)
-            else:
-                output={}
-                output['max']=0
-                output['min']=0
-                output['mean']=0
+                c1, c2, c3 = st.columns(3, gap="medium")
 
-            c1, c2, c3 = st.columns(3, gap="medium")
+                with st.container():
 
-            with st.container():
+                    variable_output = "<b>Switzerland</b>"  # round(output["max"][1]*100)
+                    input_text = "has the <b>highest</b> score with <b>99.96%</b> accuracy"
+                    c1.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
+                    c1.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
 
-                variable_output = "<b>Switzerland</b>"  # round(output["max"][1]*100)
-                input_text = "has the <b>highest</b> score with <b>99.96%</b> accuracy"
-                c1.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
-                c1.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
+                    variable_output = "<b>99.29%</b>"  # round(output["mean"][0]*100)
+                    input_text = "is the <b>average</b> accuracy"
+                    c2.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
+                    c2.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
 
-                variable_output = "<b>99.29%</b>"  # round(output["mean"][0]*100)
-                input_text = "is the <b>average</b> accuracy"
-                c2.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
-                c2.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
+                    variable_output = "<b>Russian Federation</b>"  # round(output["min"][1]*100)
+                    input_text = "has the <b>lowest</b> score with <b>93.4%</b> accuracy"
+                    c3.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
+                    c3.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
+            
+            if model_option == "Local Outlier Factor":
+            #     m_path = os.path.join("models", "forest_model.sav")
+            #     evaluation = predict_forest(m_path, dic[country])
 
-                variable_output = "<b>Russian Federation</b>"  # round(output["min"][1]*100)
-                input_text = "has the <b>lowest</b> score with <b>93.4%</b> accuracy"
-                c3.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
-                c3.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
+                m_path = os.path.join("models", "arima_model_2.json")
+                
+                # new ARIMA
+                evaluation = {}
+                if test_stationarity(dic[country], 'y')=='Stationary':
+                    pred,result = fit_predict_model(m_path, dic[country],dic[country])
+                    output = analyze2(dic, df_type)
+                else:
+                    output={}
+                    output['max']=0
+                    output['min']=0
+                    output['mean']=0
 
-        elif model_option == "Local Outlier Factor":
-        #     m_path = os.path.join("models", "forest_model.sav")
-        #     evaluation = predict_forest(m_path, dic[country])
+                c1, c2, c3 = st.columns(3, gap="medium")
 
-            m_path = os.path.join("models", "arima_model_2.json")
+                with st.container():
 
-            # new ARIMA
-            evaluation = {}
-            if test_stationarity(dic[country], 'y')=='Stationary':
-                pred,result = fit_predict_model(m_path, dic[country],dic[country])
-                output = analyze2(dic, df_type,select)
-            else:
-                output={}
-                output['max']=0
-                output['min']=0
-                output['mean']=0
+                    variable_output = "<b>Austria</b>"  # round(output["max"][1]*100)
+                    input_text = "has the <b>highest</b> score with <b>98.02%</b> accuracy"
+                    c1.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
+                    c1.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
 
-            c1, c2, c3 = st.columns(3, gap="medium")
+                    variable_output = "<b>93.86%</b>"  # round(output["mean"][0]*100)
+                    input_text = "is the <b>average</b> accuracy"
+                    c2.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
+                    c2.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
 
-            with st.container():
+                    variable_output = "<b>Russian Federation</b>"  # round(output["min"][1]*100)
+                    input_text = "has the <b>lowest</b> score with <b>86.94%</b> accuracy"
+                    c3.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
+                    c3.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
 
-                variable_output = "<b>Austria</b>"  # round(output["max"][1]*100)
-                input_text = "has the <b>highest</b> score with <b>98.02%</b> accuracy"
-                c1.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
-                c1.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
-
-                variable_output = "<b>93.86%</b>"  # round(output["mean"][0]*100)
-                input_text = "is the <b>average</b> accuracy"
-                c2.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
-                c2.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
-
-                variable_output = "<b>Russian Federation</b>"  # round(output["min"][1]*100)
-                input_text = "has the <b>lowest</b> score with <b>86.94%</b> accuracy"
-                c3.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
-                c3.markdown(create_html(input_text, "normal"), unsafe_allow_html=True)
 
         st.sidebar.title("4. Export Results")
-        
+
         col1, col2 = st.sidebar.columns([1,1])
         col1.download_button(
             'Download PDF',
