@@ -284,9 +284,9 @@ if uploaded_file is not None:
 
             # add anomalies in scatter form
             anomalies = result[result["Anomaly"]=='True']
-            # st.write(anomalies.head())
+            st.write(anomalies.head())
             # st.write(state_total.head())
-            fig_temp = px.bar(anomalies, x="Date", y="y")
+            fig_temp = px.scatter(anomalies, x="Date", y="y")
             # fig1.add_trace(fig_temp.data[0])
             # create list of dicts with selected points, and plot
             # selected_points = plotly_events(fig1)
