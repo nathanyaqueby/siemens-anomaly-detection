@@ -288,8 +288,8 @@ if uploaded_file is not None:
             fig_temp = px.scatter(anomalies, x="Date", y="y", color_discrete_sequence=["red"])
             fig1.add_trace(fig_temp.data[0])
             # create list of dicts with selected points, and plot
-            # selected_points = plotly_events(fig1)
-            st.plotly_chart(fig1,use_container_width=True)
+            selected_points = plotly_events(fig1)
+            # st.plotly_chart(fig1,use_container_width=True)
             # st.plotly_chart(fig_temp,use_container_width=True)
             # generate image for pdf
             pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
