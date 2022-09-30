@@ -313,59 +313,75 @@ if uploaded_file is not None:
             st.markdown("Value: {}".format(selected_points[0]["y"]))
 
         
-        if model_option == "ARIMA":
-            m_path = os.path.join("models", "arima_model_2.json")
+        # if model_option == "ARIMA":
+        m_path = os.path.join("models", "arima_model_2.json")
 
-            # st.markdown(f"### Predicted anomalies in {df_type} data from {date_min} to {date_max}")
+        # st.markdown(f"### Predicted anomalies in {df_type} data from {date_min} to {date_max}")
 
-            # old ARIMA
-            # dic, pred, result = predict_model(m_path, df, select)
-            # evaluation_df = analyze_data(df, dic, select, pred, result)
-            # st.dataframe(evaluation_df, use_container_width=True)
-            # pdf.image("fig3.png", w=195, h=65, y=105, x=10)
+        # old ARIMA
+        # dic, pred, result = predict_model(m_path, df, select)
+        # evaluation_df = analyze_data(df, dic, select, pred, result)
+        # st.dataframe(evaluation_df, use_container_width=True)
+        # pdf.image("fig3.png", w=195, h=65, y=105, x=10)
+        
+        # new ARIMA
+        evaluation = {}
+        if test_stationarity(dic[select], 'y')=='Stationary':
+            pred,result = fit_predict_model(m_path, dic[select],dic[select])
+            output = analyze2(dic, df_type,select)
+        else:
+            output={}
+            output['max']=0
+            output['min']=0
+            output['mean']=0
+
+        # add anomalies in scatter form
+        anomalies = result[result["Anomaly"]=='True']
+        # st.write(anomalies.head())
+        # st.write(state_total.head())
+        fig_temp = px.scatter(anomalies, x="Date", y="y", color_discrete_sequence=["red"])
+        fig1.add_trace(fig_temp.data[0])
+        # create list of dicts with selected points, and plot
+        selected_points = plotly_events(fig1)
+        # st.plotly_chart(fig1,use_container_width=True)
+        # st.plotly_chart(fig_temp,use_container_width=True)
+        # generate image for pdf
+        pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
+        pdf.image("fig1.png", w=195, h=65, y=40, x=10)
+
+        # elif model_option == "Isolation Forest":
+        # #     m_path = os.path.join("models", "forest_model.sav")
+        # #     evaluation = predict_forest(m_path, dic[select])
+
+        #     m_path = os.path.join("models", "arima_model_2.json")
             
-            # new ARIMA
-            evaluation = {}
-            if test_stationarity(dic[select], 'y')=='Stationary':
-                pred,result = fit_predict_model(m_path, dic[select],dic[select])
-                output = analyze2(dic, df_type,select)
-            else:
-                output={}
-                output['max']=0
-                output['min']=0
-                output['mean']=0
-        elif model_option == "Isolation Forest":
-        #     m_path = os.path.join("models", "forest_model.sav")
-        #     evaluation = predict_forest(m_path, dic[select])
+        #     # new ARIMA
+        #     evaluation = {}
+        #     if test_stationarity(dic[select], 'y')=='Stationary':
+        #         pred,result = fit_predict_model(m_path, dic[select],dic[select])
+        #         output = analyze2(dic, df_type,country)
+                
+        #     else:
+        #         output={}
+        #         output['max']=0
+        #         output['min']=0
+        #         output['mean']=0
+        # elif model_option == "Local Outlier Factor":
+        # #     m_path = os.path.join("models", "forest_model.sav")
+        # #     evaluation = predict_forest(m_path, dic[select])
 
-            m_path = os.path.join("models", "arima_model_2.json")
+        #     m_path = os.path.join("models", "arima_model_2.json")
             
-            # new ARIMA
-            evaluation = {}
-            if test_stationarity(dic[select], 'y')=='Stationary':
-                pred,result = fit_predict_model(m_path, dic[select],dic[select])
-                output = analyze2(dic, df_type,country)
-            else:
-                output={}
-                output['max']=0
-                output['min']=0
-                output['mean']=0
-        elif model_option == "Local Outlier Factor":
-        #     m_path = os.path.join("models", "forest_model.sav")
-        #     evaluation = predict_forest(m_path, dic[select])
-
-            m_path = os.path.join("models", "arima_model_2.json")
-            
-            # new ARIMA
-            evaluation = {}
-            if test_stationarity(dic[select], 'y')=='Stationary':
-                pred,result = fit_predict_model(m_path, dic[select],dic[select])
-                output = analyze2(dic, df_type,select)
-            else:
-                output={}
-                output['max']=0
-                output['min']=0
-                output['mean']=0
+        #     # new ARIMA
+        #     evaluation = {}
+        #     if test_stationarity(dic[select], 'y')=='Stationary':
+        #         pred,result = fit_predict_model(m_path, dic[select],dic[select])
+        #         output = analyze2(dic, df_type,select)
+        #     else:
+        #         output={}
+        #         output['max']=0
+        #         output['min']=0
+        #         output['mean']=0
 
         st.markdown("## **Model prediction**")
         with st.expander("I want to see the nerd stats!"):
