@@ -140,6 +140,8 @@ def fit_predict_model(m_path, dataframe,dataframe1):
     le = LabelEncoder()
 
     result['Label_pred_num'] = le.fit_transform(result['Anomaly'])
+    result.reset_index(inplace=True)
+    result.rename(columns={"ds": "Date"},inplace=True)
     return forecast,result
 
 # new ARIMA extra function
@@ -297,52 +299,59 @@ if uploaded_file is not None:
         width=1200, height=400,
         title=f"{df_type} data in {select} from {date_min} to {date_max}")
         fig1.update(layout=dict(title=dict(x=0.5)))
-        # create list of dicts with selected points, and plot
-        selected_points = plotly_events(fig1)
-        # generate image for pdf
-        pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
-        pdf.image("fig1.png", w=195, h=65, y=40, x=10)
 
         # If single country: deploy model
         st.sidebar.title("3. Model")
         model_option = st.sidebar.selectbox("Choose a model", ("ARIMA", "Coming soon"))
 
-        
+
+        if model_option == "ARIMA":
+            m_path = os.path.join("models", "arima_model_2.json")
+
+            # old ARIMA
+            # dic, pred, result = predict_model(m_path, df, select)
+            # evaluation_df = analyze_data(df, dic, select, pred, result)
+            # st.dataframe(evaluation_df, use_container_width=True)
+            # pdf.image("fig3.png", w=195, h=65, y=105, x=10)
+            
+            # new ARIMA
+            evaluation = {}
+            if test_stationarity(dic[country], 'y')=='Stationary':
+                pred,result = fit_predict_model(m_path, dic[country],dic[country])
+                output = analyze2(dic, df_type)
+            else:
+                output={}
+                output['max']=0
+                output['min']=0
+                output['mean']=0
+            
+            # add anomalies in scatter form
+            anomalies = result[result["Anomaly"]=='True']
+            fig_temp = px.scatter(anomalies, x="Date", y="y", color_discrete_sequence=["red"])
+            fig1.add_trace(fig_temp.data[0])
+            # create list of dicts with selected points, and plot
+            # selected_points = plotly_events(fig1)
+            st.plotly_chart(fig1,use_container_width=True)
+            # st.plotly_chart(fig_temp,use_container_width=True)
+            # generate image for pdf
+            pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
+            pdf.image("fig1.png", w=195, h=65, y=40, x=10)
+
+
+        selected_points = None
+
         # if a point was clicked, show info
         if selected_points:
             st.markdown("#### **Selected point**")
             st.markdown("Date: {}".format(selected_points[0]["x"]))
             st.markdown("Value: {}".format(selected_points[0]["y"]))
 
-        st.markdown("## **Model prediction**")
-        with st.expander("I want to see the nerd stats!"):
-            if model_option == "ARIMA":
-                m_path = os.path.join("models", "arima_model_2.json")
-
-                # st.markdown(f"### Predicted anomalies in {df_type} data in {select} from {date_min} to {date_max}")
-
-                # old ARIMA
-                # dic, pred, result = predict_model(m_path, df, select)
-                # evaluation_df = analyze_data(df, dic, select, pred, result)
-                # st.dataframe(evaluation_df, use_container_width=True)
-                # pdf.image("fig3.png", w=195, h=65, y=105, x=10)
-                
-                # new ARIMA
-                evaluation = {}
-                if test_stationarity(dic[country], 'y')=='Stationary':
-                    pred,result = fit_predict_model(m_path, dic[country],dic[country])
-                    output = analyze2(dic, df_type)
-                else:
-                    output={}
-                    output['max']=0
-                    output['min']=0
-                    output['mean']=0
-                   
+        if model_option == 'ARIMA':
+            st.markdown("## **Model prediction**")
+            with st.expander("I want to see the nerd stats!"):
                 # nerd stats
                 c1, c2, c3 = st.columns(3, gap="medium")
-
                 with st.container():
-
                     variable_output = "<b>Brazil</b>"  # round(output["max"][1]*100)
                     input_text = "has the <b>highest</b> score with <b>100%</b> accuracy"
                     c1.markdown(create_html(variable_output, "header"), unsafe_allow_html=True)
