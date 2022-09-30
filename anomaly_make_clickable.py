@@ -284,7 +284,7 @@ if uploaded_file is not None:
 
             # add anomalies in scatter form
             anomalies = result[result["Anomaly"]==True]
-            st.write(result.dtypes)
+            st.write(type(result))
             st.write(state_total.head())
             fig_temp = px.bar(anomalies, x="Date", y="y")
             fig1.add_trace(fig_temp.data[0])
