@@ -236,7 +236,7 @@ if uploaded_file is not None:
 
         state_total = get_total_dataframe(state_data)
 
-        # Generate figure per location (fig1), do not show yet
+        # Generate figure per location (fig1)
         st.markdown("## **Location analysis**")
         date_min=df.Date.iloc[0].strftime("%B %Y")
         date_max=df.Date.iloc[-1].strftime("%B %Y")
@@ -249,13 +249,15 @@ if uploaded_file is not None:
         width=1200, height=400,
         title=f"{df_type} data in {select} from {date_min} to {date_max}")
         fig1.update(layout=dict(title=dict(x=0.5)))
+        # create list of dicts with selected points, and plot
+        selected_points = plotly_events(fig1)
 
         # If single country: deploy model
         st.sidebar.title("3. Model")
         model_option = st.sidebar.selectbox("Choose a model", ("ARIMA", "Coming soon"))
 
-        # intitialize point selection as None since figure not generated yet
-        selected_points = None
+        # # intitialize point selection as None since figure not generated yet
+        # selected_points = None
         
         # if a point was clicked, show info
         if selected_points:
@@ -290,7 +292,8 @@ if uploaded_file is not None:
         with st.expander("I want to see the nerd stats!"):
             pass
 
-        fig_temp = px.scatter(result, x="Date", y="Anomaly")
+        # add anomalies in scatter form
+        fig_temp = px.bar(result, x="Date", y="Anomaly")
         fig1.add_trace(fig_temp.data[0])
         # create list of dicts with selected points, and plot
         selected_points = plotly_events(fig1)
