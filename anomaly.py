@@ -12,7 +12,9 @@ from sklearn.neighbors import LocalOutlierFactor
 from sklearn.metrics import confusion_matrix 
 from sklearn import metrics
 from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import StandardScaler
 from io import BytesIO
+import pickle
 
 #########################
 ## Functions for ARIMA ##
@@ -131,6 +133,7 @@ def fit_predict_model(m_path, dataframe,dataframe1):
     result['Anomaly'] = result.apply(lambda x: 'True' if(np.abs(x['error']) > 1.0*x['uncertainty']) else 'False', axis = 1)
     result['Label']=dataframe1['Label'].values
     #create new column 'Good' using the function above
+    st.dataframe(result)
     result['Label_pred'] = result[result['Anomaly']=='True'].apply(f, axis=1)
     result['Label_pred']=result['Label_pred'].replace(np.nan,'normal')
     # Using .fit_transform function to fit label
@@ -218,6 +221,24 @@ def to_excel_utils(df: pd.DataFrame, name: str) -> bytes:
 
     return processed_data
 
+####################################
+## Functions for Isolation Forest ##
+####################################
+
+# isolation forest
+def forest_preprocess(df, lcb):
+    scaler = StandardScaler()
+    np_scaled = scaler.fit_transform(df["y"].values.reshape(-1, 1))
+    df = pd.DataFrame(np_scaled)
+    return df
+
+def predict_forest(filename, df, lcb):
+    data = forest_preprocess(df, lcb)
+    model = pickle.load(open(filename, 'rb'))
+    df['Anomaly'] = model.predict(data)
+    return df
+
+
 ###############
 ## Dashboard ##
 ###############
@@ -259,29 +280,26 @@ if uploaded_file is not None:
     
     if check:
         # Add additional dropdown in sidebar
-        select = st.sidebar.selectbox('Select a location', df[lcb])
+        select = st.sidebar.selectbox('Select a location', df[lcb].unique())
 
-        #get the state selected in the selectbox
-        state_data = df[df[lcb] == select]
-
-        countries=df[lcb].unique()
+        countries = df[lcb].unique()
 
         # initialise dictionaries for ARIMA
-        dic={}
-        # dic1={}
+        dic = {}
 
         for country in countries:
             dic[country]=df[df[lcb]==country]
             dic[country].Label=dic[country].Label.replace(np.nan,'normal')
             dic[country]['Label_num']=np.where(dic[country]['Label']=='normal',0,1)
             dic[country]=dic[country].rename(columns = {"Date":"ds","Value":"y"})
-
-
+        
+        # get the state selected in the selectbox
+        state_data = dic[select]
 
         def get_total_dataframe(dataset):
             total_dataframe = pd.DataFrame({
-            'Date':dataset[date],
-            'Value':dataset[val]})
+            'Date':dataset["ds"],
+            'Value':dataset["y"]})
             return total_dataframe
 
         state_total = get_total_dataframe(state_data)
@@ -292,12 +310,12 @@ if uploaded_file is not None:
         date_max=df.Date.iloc[-1].strftime("%B %Y")
 
         fig1 = px.line(
-        state_total, 
-        x='Date',
-        y='Value',
-        labels={'Value':'Value in %s' % (select)},
-        width=1200, height=400,
-        title=f"{df_type} data in {select} from {date_min} to {date_max}")
+            state_total, 
+            x='Date',
+            y='Value',
+            labels={'Value':'Value in %s' % (select)},
+            width=1200, height=400,
+            title=f"{df_type} data in {select} from {date_min} to {date_max}")
         fig1.update(layout=dict(title=dict(x=0.5)))
 
         # If single country: deploy model
@@ -313,75 +331,60 @@ if uploaded_file is not None:
             st.markdown("Value: {}".format(selected_points[0]["y"]))
 
         
-        # if model_option == "ARIMA":
-        m_path = os.path.join("models", "arima_model_2.json")
+        if model_option == "ARIMA":
+            m_path = os.path.join("models", "arima_model_2.json")
 
-        # st.markdown(f"### Predicted anomalies in {df_type} data from {date_min} to {date_max}")
+            # st.markdown(f"### Predicted anomalies in {df_type} data from {date_min} to {date_max}")
 
-        # old ARIMA
-        # dic, pred, result = predict_model(m_path, df, select)
-        # evaluation_df = analyze_data(df, dic, select, pred, result)
-        # st.dataframe(evaluation_df, use_container_width=True)
-        # pdf.image("fig3.png", w=195, h=65, y=105, x=10)
-        
-        # new ARIMA
-        evaluation = {}
-        if test_stationarity(dic[select], 'y')=='Stationary':
-            pred,result = fit_predict_model(m_path, dic[select],dic[select])
-            output = analyze2(dic, df_type,select)
-        else:
-            output={}
-            output['max']=0
-            output['min']=0
-            output['mean']=0
-
-        # add anomalies in scatter form
-        anomalies = result[result["Anomaly"]=='True']
-        # st.write(anomalies.head())
-        # st.write(state_total.head())
-        fig_temp = px.scatter(anomalies, x="Date", y="y", color_discrete_sequence=["red"])
-        fig1.add_trace(fig_temp.data[0])
-        # create list of dicts with selected points, and plot
-        selected_points = plotly_events(fig1)
-        # st.plotly_chart(fig1,use_container_width=True)
-        # st.plotly_chart(fig_temp,use_container_width=True)
-        # generate image for pdf
-        pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
-        pdf.image("fig1.png", w=195, h=65, y=40, x=10)
-
-        # elif model_option == "Isolation Forest":
-        # #     m_path = os.path.join("models", "forest_model.sav")
-        # #     evaluation = predict_forest(m_path, dic[select])
-
-        #     m_path = os.path.join("models", "arima_model_2.json")
+            # old ARIMA
+            # dic, pred, result = predict_model(m_path, df, select)
+            # evaluation_df = analyze_data(df, dic, select, pred, result)
+            # st.dataframe(evaluation_df, use_container_width=True)
+            # pdf.image("fig3.png", w=195, h=65, y=105, x=10)
             
-        #     # new ARIMA
-        #     evaluation = {}
-        #     if test_stationarity(dic[select], 'y')=='Stationary':
-        #         pred,result = fit_predict_model(m_path, dic[select],dic[select])
-        #         output = analyze2(dic, df_type,country)
-                
-        #     else:
-        #         output={}
-        #         output['max']=0
-        #         output['min']=0
-        #         output['mean']=0
-        # elif model_option == "Local Outlier Factor":
-        # #     m_path = os.path.join("models", "forest_model.sav")
-        # #     evaluation = predict_forest(m_path, dic[select])
+            # new ARIMA
+            evaluation = {}
+            if test_stationarity(dic[select], 'y')=='Stationary':
+                try:
+                    pred,result = fit_predict_model(m_path, dic[select],dic[select])
+                    output = analyze2(dic, df_type,select)
+                except ValueError:
+                    st.dataframe()
+            else:
+                output={}
+                output['max']=0
+                output['min']=0
+                output['mean']=0
 
-        #     m_path = os.path.join("models", "arima_model_2.json")
-            
-        #     # new ARIMA
-        #     evaluation = {}
-        #     if test_stationarity(dic[select], 'y')=='Stationary':
-        #         pred,result = fit_predict_model(m_path, dic[select],dic[select])
-        #         output = analyze2(dic, df_type,select)
-        #     else:
-        #         output={}
-        #         output['max']=0
-        #         output['min']=0
-        #         output['mean']=0
+            # add anomalies in scatter form
+            anomalies = result[result["Anomaly"]=='True']
+            # st.write(anomalies.head())
+            # st.write(state_total.head())
+            fig_temp = px.scatter(anomalies, x="Date", y="y", color_discrete_sequence=["red"])
+            fig1.add_trace(fig_temp.data[0])
+            # create list of dicts with selected points, and plot
+            selected_points = plotly_events(fig1)
+            # st.plotly_chart(fig1,use_container_width=True)
+            # st.plotly_chart(fig_temp,use_container_width=True)
+            # generate image for pdf
+            pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
+            pdf.image("fig1.png", w=195, h=65, y=40, x=10)
+
+        elif model_option == "Isolation Forest":
+            m_path = os.path.join("models", "forest_model.sav")
+            result = predict_forest(m_path, dic[select], lcb)
+
+            # add anomalies in scatter form
+            anomalies = result[result["Anomaly"]==-1]
+
+            fig_temp = px.scatter(anomalies, x="ds", y="y", color_discrete_sequence=["red"])
+            fig1.add_trace(fig_temp.data[0])
+            # create list of dicts with selected points, and plot
+            selected_points = plotly_events(fig1)
+
+            # generate image for pdf
+            pio.write_image(fig1, "fig1.png", format="png", validate="False", engine="kaleido")
+            pdf.image("fig1.png", w=195, h=65, y=40, x=10)
 
         st.markdown("## **Model prediction**")
         with st.expander("I want to see the nerd stats!"):
