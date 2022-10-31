@@ -133,7 +133,6 @@ def fit_predict_model(m_path, dataframe,dataframe1):
     result['Anomaly'] = result.apply(lambda x: 'True' if(np.abs(x['error']) > 1.0*x['uncertainty']) else 'False', axis = 1)
     result['Label']=dataframe1['Label'].values
     #create new column 'Good' using the function above
-    st.dataframe(result)
     result['Label_pred'] = result[result['Anomaly']=='True'].apply(f, axis=1)
     result['Label_pred']=result['Label_pred'].replace(np.nan,'normal')
     # Using .fit_transform function to fit label
