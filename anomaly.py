@@ -242,7 +242,9 @@ def predict_forest(filename, df, lcb):
 ## Dashboard ##
 ###############
 
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide",
+                    page_title="Anomaly Detection - WomenHackAI",
+                    page_icon="🔍")
 st.title("Anomaly Detection Team - Challenge 4")
 
 st.sidebar.title("1. Data")
